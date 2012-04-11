@@ -9,10 +9,30 @@
     lex regular expressions defining zerodoc can be found interspersed
     in the t_ and p_ functions of this file
 
+    Copyright (C) 2012 Pablo Martin <pablo at odkq.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
+import json
+import hashlib
+import optparse
 import ply.lex as lex
 import ply.yacc as yacc
+
+# For the time being ...
+DEBUG=True
 
 tokens = ( 'TEXT', 'TEXTLIST', 'SPACE', 'NEWLINE')
 
@@ -157,7 +177,7 @@ def p_error(t):
         print "Syntax error at '%s'" % t.value
     else:
         print "Syntax error at EOF"
-        # pass
+    sys.exit(0)
 
 def adjust_sections(doc):
     ''' Walk the parsed tree looking for paragraphs that are title
@@ -193,68 +213,110 @@ def adjust_sections(doc):
     doc['body']['sections'] = sections
     del doc['body']['paragraphs']
 
-if len(sys.argv) != 2:
-    print 'Usage: zerodoc <filename>'
-    sys.exit(1)
 
-def print_paragraph_html(para):
+def get_header_link(s):
+    h = hashlib.new('ripemd160')
+    h.update(s.lower())
+    return h.hexdigest()[:8]
+
+def write_html_paragraph(para, toc = False):
+    o = ''
     if para.has_key('sourcelines'):
-        print '<pre>'
+        o += '<pre>\n'
         for sline in para['sourcelines']:
-            print sline['sourceline']
-        print '</pre>'
+            o += sline['sourceline'] + '\n'
+        o += '</pre>\n'
     elif para.has_key('listlines'):
-        print '<ul>'
+        o += '<ul>'
         for uline in para['listlines']:
-            print '<li>' + uline['listline'] + '</li>'
-        print '</ul>'
+            if toc:
+                o += '<li>'
+                o += '<a href="#' + get_header_link(uline['listline']) +'">'
+                o += uline['listline']
+                o += '</a></li>\n'
+            else:
+                o += '<li>' + uline['listline'] + '</li>\n'
+        o += '</ul>\n'
     elif para.has_key('textlines'):
-        print '<p>'
-        for tline in para['textlines']:
-            print tline['textline']
-        print '</p>'
+        o += '<p>\n'
+        for t in para['textlines']:
+            o += t['textline'] + '\n'
+        o += '</p>\n'
+    return o
 
-def print_section_html(section):
-    print '<h2>' + section['title']['textline'] + '</h2>'
+def write_html_section(section):
+    o = ''
+    o += '<a name="' + get_header_link(section['title']['textline']) + '"></a>'
+    o += '<h2>' + section['title']['textline'] + '</h2>'
     for para in section['paragraphs']:
-        print_paragraph_html(para)
+        o += write_html_paragraph(para)
+    return o
 
-def print_html(doc):
+def write_html(doc):
     '''
-    <html>
-    <head>
-     <title>Install debian with loop-aes encryption in the root partition</title>
-     </head>
-     <body>
-     <h1>Install debian with loop-aes encryption in the root partition</h1>
+    Output the html 2.0 "representation" of a doc tree
     '''
-    print '<html>'
-    print '<head>'
-    print '<title>'
+    o = ''
+    o += '<html>\n'
+    o += '<head>\n'
+    o += '<title>\n'
     for titleline in doc['header']['title']['textlines']:
-        print titleline['textline']
-    print '</title>'
-    print '<body>'
-    print '<h1>'
+        o += titleline['textline'] + '\n'
+    o += '</title>\n'
+    o += '<body>\n'
+    o += '<h1>\n'
     for titleline in doc['header']['title']['textlines']:
-        print titleline['textline']
-    print '<h2>Abstract</h2>'
+        o += titleline['textline'] + '\n'
+    o += '</h1>\n'
+    # o += '<h2>Abstract</h2>'
     for para in doc['header']['abstract']['paragraphs']:
-        print_paragraph_html(para)
-    print '<h2>Table of contents</h2>'
-    print_paragraph_html(doc['header']['toc'])
+        o += write_html_paragraph(para)
+    # o += '<h2>Table of contents</h2>'
+    o += write_html_paragraph(doc['header']['toc'], toc=True)
 
     for section in doc['body']['sections']:
-        print_section_html(section) 
-    print '</body>'
-    print '</html>'
+        o += write_html_section(section) 
+    o += '</body>'
+    o += '</html>'
+    return o
 
-l = lex.lex(debug=0)
-yacc.yacc(debug=0)
-f = open(sys.argv[1], 'r')
-document = yacc.parse(f.read())
-adjust_sections(document)
-#print 'parse tree: '
-#print str(document)
-#print 'html: '
-print_html(document)
+def parse_file(path):
+    ''' Return the syntax tree after parsing a file, or None, 'error string'
+        if an error parsing it is encountered ''' 
+    f = open(path, 'r')
+    s = f.read()
+    if DEBUG:
+        print '--- input: '
+        print(s)
+    return parse_string(s)
+
+def parse_string(s):
+    ''' Return the syntax tree for a preloaded string '''
+    l = lex.lex(debug=0)
+    yacc.yacc(debug=0)
+    doc = yacc.parse(s)
+    adjust_sections(doc)
+    return doc, None
+
+def parse_file_into(input, output):
+    ''' Transform the zerodoc input and write the result into another
+        file ''' 
+    f = open(output, 'w')
+    d, errstr = parse_file(input)
+    if DEBUG:
+        print '--- python tree: '
+        print str(d)
+        print '--- JSON output: '
+        print json.dumps(d, indent=2)
+        print '--- HTML output: '
+        print write_html(d)
+    f.write(write_html(d))
+    f.close()
+    return True
+
+if __name__=="__main__":
+    if len(sys.argv) != 3:
+        print 'Usage: zerodoc <filename> <output>'
+        sys.exit(1)
+    parse_file_into(sys.argv[1], sys.argv[2])
+
