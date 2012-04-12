@@ -21,6 +21,7 @@ A paragraph can cointain regular
 text and also list items
 
 - This is a list item
+  with more than one line
 - This is another list item
 - This is a third
 
@@ -29,6 +30,11 @@ code.
 
  Source code is indented with one or more spaces
  in input
+
+ If a white line is encountered in the source code
+ stanza, a new paragraph is generated in the output.
+ Take that in mind where a white line in the code is
+ meaningful
 
 Text can continue in the paragraph after a source
 section or list

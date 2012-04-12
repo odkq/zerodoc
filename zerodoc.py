@@ -81,9 +81,6 @@ def p_paragraphs(p):
                   | paragraph'''
     append_or_create('paragraphs', p)
 
-#   if len(p[1][1][1]) == 1:    # With only 1 textline
-#        print 'only line ' + p[1][1][1][1]
-
 def in_toclist(s, d):
     found = False
     toc_list = d['header']['toc']
@@ -107,8 +104,18 @@ def p_listlines(p):
 
 def p_sourcelines(p):
     '''sourcelines : sourcelines sourceline
-                  | sourceline'''
-    append_or_create('sourcelines', p)
+                   | sourceline
+                   | sourcelines NEWLINE sourceline'''
+    if len(p) == 3:
+        # create a pseudo p vector
+        v = []
+        v.append(p[0])
+        v.append(p[1])
+        v.append(p[2])
+        append_or_create('sourcelines', v)
+        p[0] = v[0]
+    else:
+        append_or_create('sourcelines', p)
 
 def p_textlines(p):
     '''textlines : textlines textline
@@ -140,9 +147,14 @@ def p_textline(p):
     p[0] = { 'textline': p[1] }
 
 def p_listline(p):
-    'listline : TEXTLIST NEWLINE'
-    # Remove initial '- '
-    p[0] = { 'listline': p[1][2:] }
+    '''listline : TEXTLIST NEWLINE
+                | listline SPACE SPACE TEXT NEWLINE'''
+    if len(p) == 3:
+        # First line
+        p[0] = { 'listline': p[1][2:] }
+    else:
+        # Append existing listline string interposing a space
+        p[0] = { 'listline': p[1]['listline'] + ' ' + p[4] } 
 
 def p_title(p):
     'title : textlines NEWLINE'
@@ -174,7 +186,7 @@ def p_document(p):
 
 def p_error(t):
     if t:
-        print "Syntax error at '%s'" % t.value
+        print "Syntax error at line %d, character '%s'" % (t.lineno, t.value)
     else:
         print "Syntax error at EOF"
     sys.exit(0)
