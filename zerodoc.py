@@ -82,15 +82,15 @@ def p_paragraphs(p):
     append_or_create('paragraphs', p)
 
 def in_toclist(s, d):
-    found = False
+    found = None
     toc_list = d['header']['toc']
     for e in toc_list['listlines']:
         if e['listline'].lower() == s.lower():
-            if found == True:
+            if found != None:
                 print 'ERROR: The element ' + e['listline'] + 'in TOC is duplicated!'
                 sys.exit(1)
             else:
-                found = True
+                found = e['listline']
     return found
 
 def p_paragraph(p):
@@ -213,8 +213,10 @@ def adjust_sections(doc):
         if len(para['textlines']) != 1:
             continue
         title_candidate = para['textlines'][0]['textline']
-        if in_toclist(title_candidate, doc) == False:
+        toc_string = in_toclist(title_candidate, doc)
+        if toc_string == None:
             continue
+        para['textlines'][0]['textline'] = toc_string
         if last == -1:
             last = i
             continue
