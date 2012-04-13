@@ -94,7 +94,9 @@ def in_toclist(s, d):
     return found
 
 def p_paragraph(p):
-    'paragraph : textlines NEWLINE'
+    '''paragraph : textlines NEWLINE
+                 | sourcelines NEWLINE
+    '''
     p[0] = p[1]
 
 def p_listlines(p):
@@ -106,12 +108,16 @@ def p_sourcelines(p):
     '''sourcelines : sourcelines sourceline
                    | sourceline
                    | sourcelines NEWLINE sourceline'''
-    if len(p) == 3:
+#                   | sourcelines sourceline NEWLINE'''
+    if len(p) == 4:
+        print 'sourcelines continuation'
         # create a pseudo p vector
         v = []
         v.append(p[0])
+        # reappend the new line
+        p[1]['sourcelines'][len(p[1]['sourcelines']) - 1]['sourceline'] += '\n'
         v.append(p[1])
-        v.append(p[2])
+        v.append(p[3])
         append_or_create('sourcelines', v)
         p[0] = v[0]
     else:
@@ -120,16 +126,18 @@ def p_sourcelines(p):
 def p_textlines(p):
     '''textlines : textlines textline
                  | textline
-                 | listlines
-                 | sourcelines'''
-
+                 | listlines'''
     # This is not a regular append_or_create
     # Because this rule can receive listlines
     # or sourcelines, in wich case it just replaces
     # the array with it
     if len(p) == 3:
         p[0] = p[1]         # copy textlines dict
-        p[0]['textlines'].append(p[2])   # Append new textline
+        if 'sourcelines' in p[0]:
+            print 'appending textline to sourcelines'
+            p[0]['sourcelines'].append(p[2])   # Append new textline
+        else:
+            p[0]['textlines'].append(p[2])   # Append new textline
     else:
         if p[1].has_key('listlines') or p[1].has_key('sourcelines'):
             # Just copy the array of listlines/sourcelines
@@ -186,7 +194,7 @@ def p_document(p):
 
 def p_error(t):
     if t:
-        print "Syntax error at line %d, character '%s'" % (t.lineno, t.value)
+        print "Syntax error at line %d, around '%s'" % (t.lineno, t.value)
     else:
         print "Syntax error at EOF"
     sys.exit(0)
@@ -236,7 +244,13 @@ def write_html_paragraph(para, toc = False):
     if para.has_key('sourcelines'):
         o += '<pre>\n'
         for sline in para['sourcelines']:
-            o += sline['sourceline'] + '\n'
+            if 'sourceline' in sline:
+                o += sline['sourceline'] + '\n'
+            elif 'textline' in sline:
+                print 'mixed sourceline and textline in sourcelines'
+                o += sline['textline'] + '\n'
+            else:
+                print 'unknown element in sourcelines ' + str(sline) + ' ' + str(sline.keys())
         o += '</pre>\n'
     elif para.has_key('listlines'):
         o += '<ul>'
