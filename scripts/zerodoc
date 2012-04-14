@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+"""
+    zerodoc command line wrapper
+
+    See zerodoc.parse.py for details on the zerodoc library
+
+    Copyright (C) 2012 Pablo Martin <pablo at odkq.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+import sys
+import zerodoc.parse
+import zerodoc.html
+
+DEBUG=True
+
+def parse_file(path):
+    ''' Return the syntax tree after parsing a file, or None, 'error string'
+        if an error parsing it is encountered ''' 
+    f = open(path, 'r')
+    s = f.read()
+    if DEBUG:
+        print '--- input: '
+        print(s)
+    return zerodoc.parse.parse(s)
+
+def parse_file_into(input, output):
+    ''' Transform the zerodoc input and write the result into another
+        file ''' 
+    f = open(output, 'w')
+    d, errstr = parse_file(input)
+    if DEBUG:
+        print '--- python tree: '
+        print str(d)
+        print '--- JSON output: '
+        # print json.dumps(d, indent=2)
+        print '--- HTML output: '
+        print zerodoc.html.write(d)
+    f.write(zerodoc.html.write(d))
+    f.close()
+    return True
+
+if __name__=="__main__": 
+   if len(sys.argv) != 3:
+       print 'Usage: zerodoc <filename> <output>'
+       sys.exit(1)
+   parse_file_into(sys.argv[1], sys.argv[2])
+
