@@ -24,6 +24,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+import os
 import sys
 import ply.lex as lex
 import ply.yacc as yacc
@@ -107,7 +108,6 @@ def p_sourcelines(p):
                    | sourcelines NEWLINE sourceline'''
 #                   | sourcelines sourceline NEWLINE'''
     if len(p) == 4:
-        print 'sourcelines continuation'
         # create a pseudo p vector
         v = []
         v.append(p[0])
@@ -234,9 +234,20 @@ def adjust_sections(doc):
 
 def parse(s):
     ''' Return the syntax tree for a preloaded string '''
-    l = lex.lex(debug=0)
-    yacc.yacc(debug=0)
+    l = lex.lex(optimize=1, debug=0)
+    yacc.yacc(optimize=1, debug=0)
     doc = yacc.parse(s)
     adjust_sections(doc)
+    
+    # Parsetab by default is generated on the current directory
+    # This is not desirable at all (the directory can be read-only
+    # and a program should not write spureous files on its cwd)
+    # But, until i figure out a better way to put the parsetab
+    # in the installation dir (wich would be the best) just remove
+    # it
+    if os.path.exists('parsetab.py'):
+        os.remove('parsetab.py')
+    if os.path.exists('lextab.py'):
+        os.remove('lextab.py')
     return doc, None
 
