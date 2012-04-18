@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """ 
-    zerodoc html 2.0 output
+    zerodoc html 2.0 (http://tools.ietf.org/rfc/rfc1866.txt) output
     
     Copyright (C) 2012 Pablo Martin <pablo at odkq.com>
 
@@ -39,15 +39,40 @@ def write_html_paragraph(para, toc = False):
                 print 'unknown element in sourcelines ' + str(sline) + ' ' + str(sline.keys())
         o += '</pre>\n'
     elif para.has_key('listlines'):
-        o += '<ul>'
+        lastlevel = 0
+        o += '<ul>\n'
         for uline in para['listlines']:
+            # We can go from 3 to 0, but not to 1 to 3 (an
+            # intermediate title is needed)
+            # TODO: Do this test in the parser
+            d = lastlevel - uline['listline']['level']
+            if d == -1:
+                # Certain formats make list delimiters depend on level, - * +
+                # and so on. It's not the case of HTML
+                o += '<ul>\n'
+                lastlevel += 1
+            elif d > 0:
+                # Unwind <ul's>
+                for i in range(d):
+                    o += '</ul>\n'
+                    lastlevel -= 1
+            elif uline['listline']['level'] != lastlevel:
+                # List indentation error
+                # TODO: Notify from the parser?
+                o += '<code>error, new listlevel '
+                o += str(uline['listline']['level'])
+                o += ' oldlistlevel ' + str(lastlevel)
+                o += '</code>'
             if toc:
                 o += '<li>'
-                o += '<a href="#' + get_header_link(uline['listline']) +'">'
-                o += uline['listline']
+                o += '<a href="#' + get_header_link(uline['listline']['string']) +'">'
+                o += uline['listline']['string']
                 o += '</a></li>\n'
             else:
-                o += '<li>' + uline['listline'] + '</li>\n'
+                o += '<li>' + uline['listline']['string'] + '</li>\n'
+        # Unwind last <ul's>
+        for i in range(lastlevel):
+            o += '</ul>\n'
         o += '</ul>\n'
     elif para.has_key('textlines'):
         o += '<p>\n'
@@ -59,18 +84,21 @@ def write_html_paragraph(para, toc = False):
 def write_html_section(section):
     o = ''
     o += '<a name="' + get_header_link(section['title']['textline']) + '"></a>'
-    o += '<h2>' + section['title']['textline'] + '</h2>'
+    o += '<h' + str(section['level'] + 2) 
+    o += '>' + section['title']['textline'] + '</h'
+    o += str(section['level'] + 2) + '>'
     for para in section['paragraphs']:
         o += write_html_paragraph(para)
     return o
 
 def write(doc):
     '''
-    Output the html 2.0 "representation" of a doc tree
+    Output the HTML 2.0 rendering of a doc tree
     '''
-    o = ''
+    o = '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 Strict//EN">\n'
     o += '<html>\n'
     o += '<head>\n'
+    o += '<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" >'
     o += '<title>\n'
     for titleline in doc['header']['title']['textlines']:
         o += titleline['textline'] + '\n'

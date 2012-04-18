@@ -36,7 +36,7 @@ tokens = ( 'TEXT', 'TEXTLIST', 'SPACE', 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
 t_SPACE=r'\ '
-t_TEXTLIST=r'-[^\n]+'
+t_TEXTLIST=r'[ ]*-[^\n]+'
 
 start = 'document'
 
@@ -81,15 +81,17 @@ def p_paragraphs(p):
 
 def in_toclist(s, d):
     found = None
+    level = None
     toc_list = d['header']['toc']
     for e in toc_list['listlines']:
-        if e['listline'].lower() == s.lower():
+        if e['listline']['string'].lower() == s.lower():
             if found != None:
                 print 'ERROR: The element ' + e['listline'] + 'in TOC is duplicated!'
                 sys.exit(1)
             else:
-                found = e['listline']
-    return found
+                found = e['listline']['string']
+                level = e['listline']['level']
+    return found, level
 
 def p_paragraph(p):
     '''paragraph : textlines NEWLINE
@@ -156,10 +158,13 @@ def p_listline(p):
                 | listline SPACE SPACE TEXT NEWLINE'''
     if len(p) == 3:
         # First line
-        p[0] = { 'listline': p[1][2:] }
+        # The number of spaces determines the indentation
+        # TODO: make it depend on previous occurrences
+        level = p[1].count(' ', 0, p[1].find('-'))
+        p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
     else:
         # Append existing listline string interposing a space
-        p[0] = { 'listline': p[1]['listline'] + ' ' + p[4] } 
+        p[0] = { 'listline': { 'level': p[1]['level'], 'string': p[1]['listline']['string'] + ' ' + p[4] }}
 
 def p_title(p):
     'title : textlines NEWLINE'
@@ -203,6 +208,7 @@ def adjust_sections(doc):
     paras = doc['body']['paragraphs']
     nparas = len(paras)
     last = -1
+    lastlevel = -1
     for i in range(nparas):
         para = paras[i]
         if para.has_key('textlines') == False:
@@ -210,21 +216,23 @@ def adjust_sections(doc):
         if len(para['textlines']) != 1:
             continue
         title_candidate = para['textlines'][0]['textline']
-        toc_string = in_toclist(title_candidate, doc)
+        toc_string, level = in_toclist(title_candidate, doc)
         if toc_string == None:
             continue
         para['textlines'][0]['textline'] = toc_string
         if last == -1:
             last = i
+            lastlevel = level
             continue
         lastpara = paras[last]
-        section = { 'title': lastpara['textlines'][0] , 'paragraphs' : paras[last+1:i]}
+        section = { 'title': lastpara['textlines'][0], 'level': lastlevel, 'paragraphs' : paras[last+1:i]}
         sections.append(section)
-        last = i 
+        last = i
+        lastlevel = level
 
     # Last section
     lastpara = paras[last]
-    section = { 'title': lastpara['textlines'][0] , 'paragraphs' : paras[last+1:nparas] }
+    section = { 'title': lastpara['textlines'][0] , 'level': lastlevel, 'paragraphs' : paras[last+1:nparas] }
     sections.append(section)
     
     # From now on paragraphs are organiced into sectors, so delete

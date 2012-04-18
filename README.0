@@ -22,33 +22,34 @@ can be used as templates for editing those comments, etc.
 Table of contents
 
 - 1. The zerodoc format
-- 1.1 Header
-- 1.1.1 Title
-- 1.1.2 Abstract
-- 1.2 Source code
-- 1.3 Diagrams
+ - 1.1 Header
+  - 1.1.1 Title
+  - 1.1.2 Abstract
+ - 1.2 Source code
+ - 1.3 Diagrams
 - 2. Installing zerodoc
-- 2.1 Prerrequisites
-- 2.2 Installing the library and interpreter
-- 2.2.1 Using a git snapshot
-- 2.2.2 Using pypi
+ - 2.1 Prerrequisites
+ - 2.2 Installing the library and interpreter
+  - 2.2.1 Using a git snapshot
+  - 2.2.2 Using pypi
 - 3. Using the command line converter
-- 3.1 Calling conventions
-- 3.2 HTML output options
-- 3.3 JSON output options
-- 3.4 Markdown generator options
-- 3.5 Manpage generator options
+ - 3.1 Calling conventions
+ - 3.2 HTML output options
+ - 3.3 JSON output options
+ - 3.4 Markdown generator options
+ - 3.5 Manpage generator options
 - 4. Using the parser
-- 4.1 Example parsed tree
-- 4.2 Example generator: HTML
+ - 4.1 Example parsed tree
+ - 4.2 Example generator: HTML
 - 5. Defining input rules
-- 5.1 Rules file format
-- 5.2 Command line converter options
-- 5.3 Feeding the library
+ - 5.1 Rules file format
+ - 5.2 Command line converter options
+ - 5.3 Feeding the library
+ - 5.4 Example: git hook
 - 6. Zerodoc internals
-- 6.1 The PLY parser
-- 6.2 "Adjusted" sections
-- 6.3 Extending zerodoc
+ - 6.1 The PLY parser
+ - 6.2 "Adjusted" sections
+ - 6.3 Extending zerodoc
 
 1. THE ZERODOC FORMAT
 
