@@ -23,7 +23,7 @@ import sys
 import zerodoc.parse
 import zerodoc.html
 
-DEBUG=True
+DEBUG=False
 
 def parse_file(path):
     ''' Return the syntax tree after parsing a file, or None, 'error string'
@@ -53,7 +53,7 @@ def parse_file_into(input, output):
 
 if __name__=="__main__": 
    if len(sys.argv) != 3:
-       print 'Usage: zerodoc <filename> <output>'
+       print 'Usage: zerodoc [-f <format>] [-p <format options>] [filename] [output]'
        sys.exit(1)
    parse_file_into(sys.argv[1], sys.argv[2])
 
