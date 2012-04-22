@@ -164,7 +164,7 @@ def p_listline(p):
         p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
     else:
         # Append existing listline string interposing a space
-        p[0] = { 'listline': { 'level': p[1]['level'], 'string': p[1]['listline']['string'] + ' ' + p[4] }}
+        p[0] = { 'listline': { 'level': p[1]['listline']['level'], 'string': p[1]['listline']['string'] + ' ' + p[4] }}
 
 def p_title(p):
     'title : textlines NEWLINE'
