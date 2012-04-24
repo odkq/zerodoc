@@ -32,15 +32,15 @@ import ply.yacc as yacc
 # For the time being ...
 DEBUG=True
 
-tokens = ( 'TEXT', 'TEXTLIST', 'SPACE', 'NEWLINE')
+tokens = ( 'TEXT', 'TEXTLIST', 'SPACE', 'SPACES', 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
 t_SPACE=r'\ '
+t_SPACES=r'\ [ ]+'
 t_TEXTLIST=r'[ ]*-[^\n]+'
 
 start = 'document'
 
-# Wheter we are in header, when list items are part of the
 # TOC, or not
 in_header = True
 
@@ -74,6 +74,13 @@ def append_or_create(name, p):
         p[0][name].append(p[1])
     return p[0]
 
+# Abstract can only have text paragrahps (no lists
+# or sourcelines
+def p_textparas(p):
+    '''textparas : textparas textpara
+                | textpara'''
+    append_or_create('abstract', p)
+
 def p_paragraphs(p):
     '''paragraphs : paragraphs paragraph
                   | paragraph'''
@@ -96,7 +103,12 @@ def in_toclist(s, d):
 def p_paragraph(p):
     '''paragraph : textlines NEWLINE
                  | sourcelines NEWLINE
+                 | listlines NEWLINE
     '''
+    p[0] = p[1]
+
+def p_textpara(p):
+    '''textpara : textlines NEWLINE'''
     p[0] = p[1]
 
 def p_listlines(p):
@@ -124,26 +136,8 @@ def p_sourcelines(p):
 
 def p_textlines(p):
     '''textlines : textlines textline
-                 | textline
-                 | listlines'''
-    # This is not a regular append_or_create
-    # Because this rule can receive listlines
-    # or sourcelines, in wich case it just replaces
-    # the array with it
-    if len(p) == 3:
-        p[0] = p[1]         # copy textlines dict
-        if 'sourcelines' in p[0]:
-            print 'appending textline to sourcelines'
-            p[0]['sourcelines'].append(p[2])   # Append new textline
-        else:
-            p[0]['textlines'].append(p[2])   # Append new textline
-    else:
-        if p[1].has_key('listlines') or p[1].has_key('sourcelines'):
-            # Just copy the array of listlines/sourcelines
-            p[0] = p[1]
-        else:      # Create a new 'textlines' array
-            p[0] = {'textlines': []}
-            p[0]['textlines'].append(p[1])   # Append text or list
+                 | textline'''
+    append_or_create('textlines', p)
 
 def p_sourceline(p):
     'sourceline : SPACE TEXT NEWLINE'
@@ -155,7 +149,7 @@ def p_textline(p):
 
 def p_listline(p):
     '''listline : TEXTLIST NEWLINE
-                | listline SPACE SPACE TEXT NEWLINE'''
+                | listline SPACES TEXT NEWLINE'''
     if len(p) == 3:
         # First line
         # The number of spaces determines the indentation
@@ -164,7 +158,7 @@ def p_listline(p):
         p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
     else:
         # Append existing listline string interposing a space
-        p[0] = { 'listline': { 'level': p[1]['listline']['level'], 'string': p[1]['listline']['string'] + ' ' + p[4] }}
+        p[0] = { 'listline': { 'level': p[1]['listline']['level'], 'string': p[1]['listline']['string'] + ' ' + p[3] }}
 
 def p_title(p):
     'title : textlines NEWLINE'
@@ -173,7 +167,7 @@ def p_title(p):
     p[0] = p[1]
 
 def p_header(p):
-    'header : title paragraphs listlines NEWLINE'
+    'header : title textparas listlines NEWLINE'
     # The real rule (the resulting tree will have):
     # title paragraphs toc NEWLINE
     p[0] = { 'title': p[1], 'abstract': p[2], 'toc': p[3] }

@@ -109,8 +109,8 @@ def write(doc):
         o += titleline['textline'] + '\n'
     o += '</h1>\n'
     # o += '<h2>Abstract</h2>'
-    for para in doc['header']['abstract']['paragraphs']:
-        o += write_html_paragraph(para)
+    for para in doc['header']['abstract']['abstract']:
+       o += write_html_paragraph(para)
     # o += '<h2>Table of contents</h2>'
     o += write_html_paragraph(doc['header']['toc'], toc=True)
 
