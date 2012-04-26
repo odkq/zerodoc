@@ -36,8 +36,12 @@ tokens = ( 'TEXT', 'TEXTLIST', 'SPACE', 'SPACES', 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
 t_SPACE=r'\ '
-t_SPACES=r'\ [ ]+'
+t_SPACES=r'\ [\ ]+'
 t_TEXTLIST=r'[ ]*-[^\n]+'
+
+# precedence = (
+#    ('left', 'FIRSTTEXTLIST', 'TEXTLIST'),
+# )
 
 start = 'document'
 
@@ -111,16 +115,17 @@ def p_textpara(p):
     '''textpara : textlines NEWLINE'''
     p[0] = p[1]
 
+# Lists with only 1 element are not allowed
 def p_listlines(p):
-    '''listlines : listlines listline
-                 | listline'''
+    '''listlines : listline
+                 | listlines listline'''
     append_or_create('listlines', p)
-
+    
 def p_sourcelines(p):
     '''sourcelines : sourcelines sourceline
                    | sourceline
                    | sourcelines NEWLINE sourceline'''
-#                   | sourcelines sourceline NEWLINE'''
+#                  | sourcelines sourceline NEWLINE'''
     if len(p) == 4:
         # create a pseudo p vector
         v = []
@@ -140,8 +145,13 @@ def p_textlines(p):
     append_or_create('textlines', p)
 
 def p_sourceline(p):
-    'sourceline : SPACE TEXT NEWLINE'
-    p[0] = { 'sourceline': p[2] } 
+    '''sourceline : SPACE TEXT NEWLINE
+                  | SPACES TEXT NEWLINE'''
+    if len(p[1]) > 1:
+        s = p[1][1:] + p[2]
+    else:
+        s = p[2]
+    p[0] = { 'sourceline': s } 
 
 def p_textline(p):
     '''textline : TEXT NEWLINE'''
@@ -159,6 +169,12 @@ def p_listline(p):
     else:
         # Append existing listline string interposing a space
         p[0] = { 'listline': { 'level': p[1]['listline']['level'], 'string': p[1]['listline']['string'] + ' ' + p[3] }}
+
+# the firstlistline is special because it determines wether the block
+# is a list paragraph or not
+#def p_firstlistline(p):
+#    '''firstlistline : FIRSTTEXTLIST'''
+#    p[0] = { 'listline': { 'level': 0 , 'string': p[1][2:] }}
 
 def p_title(p):
     'title : textlines NEWLINE'

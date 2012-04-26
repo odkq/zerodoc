@@ -33,6 +33,8 @@ Table of contents
   - 2.2.1 Using a git snapshot
   - 2.2.2 Using pypi
 - 3. Using the command line converter
+ - NAME
+ - SYNOPSIS
  - 3.1 Calling conventions
  - 3.2 HTML output options
  - 3.3 JSON output options
@@ -148,6 +150,12 @@ Change to the zerodoc dir and call setup.py as root
 2.2.2 Using pypi
 
 3. Using the command line converter
+
+NAME
+
+zerodoc - converts a zerodoc text file to HTML/markdown
+
+SYNOPSIS
 
 3.1 Calling conventions
 
