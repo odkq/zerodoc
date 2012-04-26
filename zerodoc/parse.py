@@ -32,12 +32,13 @@ import ply.yacc as yacc
 # For the time being ...
 DEBUG=True
 
-tokens = ( 'TEXT', 'TEXTLIST', 'SPACE', 'SPACES', 'NEWLINE')
+tokens = ( 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'SPACE', 'SPACES', 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
 t_SPACE=r'\ '
 t_SPACES=r'\ [\ ]+'
-t_TEXTLIST=r'[ ]*-[^\n]+'
+t_TEXTLIST=r'[\ ]+-[^\n]+'
+t_FIRSTLIST=r'-[^\n]+'
 
 # precedence = (
 #    ('left', 'FIRSTTEXTLIST', 'TEXTLIST'),
@@ -117,8 +118,10 @@ def p_textpara(p):
 
 # Lists with only 1 element are not allowed
 def p_listlines(p):
-    '''listlines : listline
-                 | listlines listline'''
+    '''listlines : firstlist listline
+                 | listlines listline
+                 | listlines firstlist
+                 | firstlist firstlist'''
     append_or_create('listlines', p)
     
 def p_sourcelines(p):
@@ -172,9 +175,11 @@ def p_listline(p):
 
 # the firstlistline is special because it determines wether the block
 # is a list paragraph or not
-#def p_firstlistline(p):
-#    '''firstlistline : FIRSTTEXTLIST'''
-#    p[0] = { 'listline': { 'level': 0 , 'string': p[1][2:] }}
+#
+# Todo: allow for various lines
+def p_firstlist(p):
+    '''firstlist : FIRSTLIST NEWLINE'''
+    p[0] = { 'listline': { 'level': 0 , 'string': p[1][2:] }}
 
 def p_title(p):
     'title : textlines NEWLINE'
