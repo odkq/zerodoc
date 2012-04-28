@@ -97,8 +97,8 @@ Source code is text that will be included verbatim in the output. In
 source code, newlines are meaningful and no limits on line-length are
 imposed.
 
-Source code is identified by one blanklines before the content of
-the first line and one or more blanklines in the rest. No tabs can
+Source code is identified by one space before the content of
+the first line and one or more spaces in the rest. No tabs can
 be used, so either transform tabs-only source code before pasting
 or use a tool like expand(1) to do it for you. Blank lines are also
 included verbatim, up to the one delimiting the next 'regular'
@@ -133,6 +133,7 @@ As an example, in a GNU/Linux Debian 6.0 'Squeeze' system, the
 requirements can be installed using:
 
  # apt-get install python-ply
+ # 
 
 2.2 Installing the library and interpreter
 
@@ -141,6 +142,7 @@ requirements can be installed using:
 Clone the github repository using
 
  $ git clone git://github.com/odkq/zerodoc.git
+ $
 
 Change to the zerodoc dir and call setup.py as root
 

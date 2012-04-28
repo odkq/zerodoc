@@ -2,15 +2,7 @@ Current unresolved bugs in the zerodoc parser
 
 Abstract
 
-- List inside source code
 - Default Zerodoc schema makes abstract mandatory
-
-LIST INSIDE SOURCE CODE
-
-When defining a list inside source code, as a nested list have
-spaces, it is wrongly recognized as list. The best way I think
-to fix this is define a 'listlines' block as starting with a
-special 'firstline' terminal defined by '- text\n'
 
 DEFAULT ZERODOC SCHEMA MAKES ABSTRACT MANDATORY
 
@@ -18,4 +10,8 @@ No document without abstract/toc can be defined. Could we define
 the default format as not having title? How can we distinguish
 between a first paragraph and the title if we allow for multiline
 titles and one-line paragraphs?
+
+HANDLE CONTINUATION LINES AND LINE LENGTH LIMITS
+
+This is perhaps easier to do in a pre-ply processing of input
 

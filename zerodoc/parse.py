@@ -32,13 +32,14 @@ import ply.yacc as yacc
 # For the time being ...
 DEBUG=True
 
-tokens = ( 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'SPACE', 'SPACES', 'NEWLINE')
+tokens = ( 'SOURCE', 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' , 'SPACES', 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
-t_SPACE=r'\ '
 t_SPACES=r'\ [\ ]+'
 t_TEXTLIST=r'[\ ]+-[^\n]+'
 t_FIRSTLIST=r'-[^\n]+'
+t_SOURCE=r'[^-\n][^\n]*'
+t_FIRSTSOURCE=r'\ [^-\n\ ][^\n]*'
 
 # precedence = (
 #    ('left', 'FIRSTTEXTLIST', 'TEXTLIST'),
@@ -122,13 +123,22 @@ def p_listlines(p):
                  | listlines listline
                  | listlines firstlist
                  | firstlist firstlist'''
-    append_or_create('listlines', p)
-    
+#    print 'p_listlines(): p[1] ' + str(p[1]) + ' p[2] ' + str(p[2])
+    if 'listlines' in p[1]:
+        p[0] = p[1] 
+        p[0]['listlines'].append(p[2])
+    else:
+        p[0] = { 'listlines': [p[1], p[2]] }
+#    append_or_create('listlines', p)
+ 
 def p_sourcelines(p):
     '''sourcelines : sourcelines sourceline
-                   | sourceline
-                   | sourcelines NEWLINE sourceline'''
-#                  | sourcelines sourceline NEWLINE'''
+                   | sourcelines firstsource
+                   | firstsource sourceline
+                   | firstsource firstsource
+                   | sourcelines NEWLINE sourceline
+                   | sourcelines NEWLINE firstsource'''
+    # | firstsource
     if len(p) == 4:
         # create a pseudo p vector
         v = []
@@ -139,22 +149,35 @@ def p_sourcelines(p):
         v.append(p[3])
         append_or_create('sourcelines', v)
         p[0] = v[0]
+    elif len(p) == 2:
+        # print 'p_sourcelines(): p[1] [' + str(p[1]) + '] '
+        p[0] = { 'sourcelines': [p[1], p[2]] }
     else:
-        append_or_create('sourcelines', p)
+        # print 'p_sourcelines(): p[1] ' + str(p[1]) + ' p[2] ' + str(p[2])
+        if 'sourcelines' in p[1]:
+            p[0] = p[1]
+            p[0]['sourcelines'].append(p[2])
+        else:
+            p[0] = { 'sourcelines': [p[1], p[2]] }
+        # append_or_create('sourcelines', p)
 
 def p_textlines(p):
     '''textlines : textlines textline
                  | textline'''
     append_or_create('textlines', p)
 
+def p_firstsource(p):
+    '''firstsource : FIRSTSOURCE NEWLINE'''
+    p[0] = { 'sourceline': p[1] } 
+
 def p_sourceline(p):
-    '''sourceline : SPACE TEXT NEWLINE
-                  | SPACES TEXT NEWLINE'''
-    if len(p[1]) > 1:
-        s = p[1][1:] + p[2]
-    else:
-        s = p[2]
-    p[0] = { 'sourceline': s } 
+    '''sourceline : SOURCE NEWLINE
+                  | TEXTLIST NEWLINE'''
+    #if len(p[1]) > 1:
+    #    s = p[1][1:] + p[2]
+    #else:
+    #    s = p[2]
+    p[0] = { 'sourceline': p[1]} 
 
 def p_textline(p):
     '''textline : TEXT NEWLINE'''
@@ -169,6 +192,8 @@ def p_listline(p):
         # TODO: make it depend on previous occurrences
         level = p[1].count(' ', 0, p[1].find('-'))
         p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
+        # level = len(p[1])
+        # p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
     else:
         # Append existing listline string interposing a space
         p[0] = { 'listline': { 'level': p[1]['listline']['level'], 'string': p[1]['listline']['string'] + ' ' + p[3] }}
