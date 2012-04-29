@@ -167,7 +167,8 @@ def p_textlines(p):
     append_or_create('textlines', p)
 
 def p_firstsource(p):
-    '''firstsource : FIRSTSOURCE NEWLINE'''
+    '''firstsource : FIRSTSOURCE NEWLINE
+                   | TEXTLIST NEWLINE'''
     p[0] = { 'sourceline': p[1] } 
 
 def p_sourceline(p):
@@ -183,10 +184,23 @@ def p_textline(p):
     '''textline : TEXT NEWLINE'''
     p[0] = { 'textline': p[1] }
 
+def firstnospace (s):
+    n = 0
+    for c in s:
+        if c == ' ':
+            n += 1
+        else:
+            return n
+
 def p_listline(p):
     '''listline : TEXTLIST NEWLINE
-                | listline SPACES TEXT NEWLINE'''
-    if len(p) == 3:
+                | listline sourceline'''
+    if 'listline' in p[1]:
+        l = firstnospace(p[2]['sourceline'])
+        s = p[2]['sourceline'][l:]
+        p[0] = { 'listline': { 'level': p[1]['listline']['level'], 'string':\
+                p[1]['listline']['string'] + ' ' + s }}
+    else:
         # First line
         # The number of spaces determines the indentation
         # TODO: make it depend on previous occurrences
@@ -194,17 +208,21 @@ def p_listline(p):
         p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
         # level = len(p[1])
         # p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
-    else:
-        # Append existing listline string interposing a space
-        p[0] = { 'listline': { 'level': p[1]['listline']['level'], 'string': p[1]['listline']['string'] + ' ' + p[3] }}
 
 # the firstlistline is special because it determines wether the block
 # is a list paragraph or not
 #
 # Todo: allow for various lines
 def p_firstlist(p):
-    '''firstlist : FIRSTLIST NEWLINE'''
-    p[0] = { 'listline': { 'level': 0 , 'string': p[1][2:] }}
+    '''firstlist : FIRSTLIST NEWLINE
+                 | firstlist sourceline'''
+    if 'listline' in p[1]:
+        l = firstnospace(p[2]['sourceline'])
+        s = p[2]['sourceline'][l:]
+        p[0] = { 'listline': { 'level': 0, 'string':\
+                p[1]['listline']['string'] + ' ' + s }}
+    else:
+        p[0] = { 'listline': { 'level': 0 , 'string': p[1][2:] }}
 
 def p_title(p):
     'title : textlines NEWLINE'
