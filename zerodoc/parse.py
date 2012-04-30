@@ -32,10 +32,9 @@ import ply.yacc as yacc
 # For the time being ...
 DEBUG=True
 
-tokens = ( 'SOURCE', 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' , 'SPACES', 'NEWLINE')
+tokens = ( 'SOURCE', 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' , 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
-t_SPACES=r'\ [\ ]+'
 t_TEXTLIST=r'[\ ]+-[^\n]+'
 t_FIRSTLIST=r'-[^\n]+'
 t_SOURCE=r'[^-\n][^\n]*'
@@ -180,6 +179,10 @@ def p_sourceline(p):
     #    s = p[2]
     p[0] = { 'sourceline': p[1]} 
 
+# def p_nolistline(p):
+#    '''nolistline : NOLIST NEWLINE'''
+#    p[0] = p[1]
+
 def p_textline(p):
     '''textline : TEXT NEWLINE'''
     p[0] = { 'textline': p[1] }
@@ -191,38 +194,21 @@ def firstnospace (s):
             n += 1
         else:
             return n
+    return None
 
 def p_listline(p):
-    '''listline : TEXTLIST NEWLINE
-                | listline sourceline'''
-    if 'listline' in p[1]:
-        l = firstnospace(p[2]['sourceline'])
-        s = p[2]['sourceline'][l:]
-        p[0] = { 'listline': { 'level': p[1]['listline']['level'], 'string':\
-                p[1]['listline']['string'] + ' ' + s }}
-    else:
-        # First line
-        # The number of spaces determines the indentation
-        # TODO: make it depend on previous occurrences
-        level = p[1].count(' ', 0, p[1].find('-'))
-        p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
-        # level = len(p[1])
-        # p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
+    '''listline : TEXTLIST NEWLINE'''
+    # The number of spaces determines the indentation
+    level = p[1].count(' ', 0, p[1].find('-'))
+    p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
 
 # the firstlistline is special because it determines wether the block
 # is a list paragraph or not
 #
 # Todo: allow for various lines
 def p_firstlist(p):
-    '''firstlist : FIRSTLIST NEWLINE
-                 | firstlist sourceline'''
-    if 'listline' in p[1]:
-        l = firstnospace(p[2]['sourceline'])
-        s = p[2]['sourceline'][l:]
-        p[0] = { 'listline': { 'level': 0, 'string':\
-                p[1]['listline']['string'] + ' ' + s }}
-    else:
-        p[0] = { 'listline': { 'level': 0 , 'string': p[1][2:] }}
+    '''firstlist : FIRSTLIST NEWLINE'''
+    p[0] = { 'listline': { 'level': 0 , 'string': p[1][2:] }}
 
 def p_title(p):
     'title : textlines NEWLINE'
@@ -298,13 +284,74 @@ def adjust_sections(doc):
     doc['body']['sections'] = sections
     del doc['body']['paragraphs']
 
+# Append with backslashes
+def append(base, new):
+    bl = len(base)
+    if bl < 2:
+        return base + new + '\n'
+    if base[(bl-2):] == '\\\n':
+        n = firstnospace(new)
+        if n == None:
+            return base
+        return base[:-2] + new[n:] + '\n'
+    else:
+        return base + new + '\n'
+
+def preprocess(s):
+    # line continuations are very tricky to handle inside the grammar,
+    # so i took this 'preprocessor' out of the sleeve :>
+    o = ''
+    e = ''
+    n = 0
+    inlist = False
+
+    for line in s.split('\n'):
+        l = len(line)
+        if l == 0:
+            if inlist:
+                inlist = False
+            o = append(o, '')
+
+        if len(line) != 0 and line[0] != ' ':
+            l = len(line)
+            if len(line) > 72:
+                e += 'Line ' + str(n) 
+                e += ':In regular paragraphs (no source/diagrams) no'
+                e += 'lines bigger than 72 chars are allowed. Use \\'
+                return None, e
+            else:
+                if line[0] == '-':
+                    inlist = True
+            o = append(o, line)
+        if len(line) != 0 and line[0] == ' ':
+                if inlist:
+                    n = firstnospace(line)
+                    if line[n] == '-':
+                        o = append(o, line)
+                    else:
+                        o = append(o[:-1], ' ' + line[n:])
+                else:
+                    insource = True
+                    o = append(o, line)
+        n += 1
+
+    # Remove extra \n's at eol
+    while o[-1:] == '\n':
+        o = o[:-1]
+    o += '\n\n'
+    return o, None
+
 def parse(s):
     ''' Return the syntax tree for a preloaded string '''
     l = lex.lex(optimize=1, debug=0)
     yacc.yacc(optimize=1, debug=0)
-    doc = yacc.parse(s)
+    p, e = preprocess(s)
+    if p == None:
+        print 'ERROR: ' + e
+        return None
+    doc = yacc.parse(p)
     adjust_sections(doc)
-    
+
     # Parsetab by default is generated on the current directory
     # This is not desirable at all (the directory can be read-only
     # and a program should not write spureous files on its cwd)
