@@ -122,19 +122,17 @@ def p_listlines(p):
                  | listlines listline
                  | listlines firstlist
                  | firstlist firstlist'''
-#    print 'p_listlines(): p[1] ' + str(p[1]) + ' p[2] ' + str(p[2])
     if 'listlines' in p[1]:
         p[0] = p[1] 
         p[0]['listlines'].append(p[2])
     else:
         p[0] = { 'listlines': [p[1], p[2]] }
-#    append_or_create('listlines', p)
  
 def p_sourcelines(p):
     '''sourcelines : sourcelines sourceline
                    | sourcelines firstsource
                    | firstsource sourceline
-                   | firstsource firstsource
+                   | firstsource 
                    | sourcelines NEWLINE sourceline
                    | sourcelines NEWLINE firstsource'''
     # | firstsource
@@ -149,16 +147,13 @@ def p_sourcelines(p):
         append_or_create('sourcelines', v)
         p[0] = v[0]
     elif len(p) == 2:
-        # print 'p_sourcelines(): p[1] [' + str(p[1]) + '] '
-        p[0] = { 'sourcelines': [p[1], p[2]] }
+        p[0] = { 'sourcelines': [p[1]] }
     else:
-        # print 'p_sourcelines(): p[1] ' + str(p[1]) + ' p[2] ' + str(p[2])
         if 'sourcelines' in p[1]:
             p[0] = p[1]
             p[0]['sourcelines'].append(p[2])
         else:
             p[0] = { 'sourcelines': [p[1], p[2]] }
-        # append_or_create('sourcelines', p)
 
 def p_textlines(p):
     '''textlines : textlines textline
@@ -173,15 +168,7 @@ def p_firstsource(p):
 def p_sourceline(p):
     '''sourceline : SOURCE NEWLINE
                   | TEXTLIST NEWLINE'''
-    #if len(p[1]) > 1:
-    #    s = p[1][1:] + p[2]
-    #else:
-    #    s = p[2]
     p[0] = { 'sourceline': p[1]} 
-
-# def p_nolistline(p):
-#    '''nolistline : NOLIST NEWLINE'''
-#    p[0] = p[1]
 
 def p_textline(p):
     '''textline : TEXT NEWLINE'''
@@ -204,7 +191,6 @@ def p_listline(p):
 
 # the firstlistline is special because it determines wether the block
 # is a list paragraph or not
-#
 # Todo: allow for various lines
 def p_firstlist(p):
     '''firstlist : FIRSTLIST NEWLINE'''
@@ -332,7 +318,9 @@ def preprocess(s):
                         o = append(o[:-1], ' ' + line[n:])
                 else:
                     insource = True
-                    o = append(o, line)
+                    # No backslash substitution for source
+                    # code
+                    o += line + '\n'
         n += 1
 
     # Remove extra \n's at eol

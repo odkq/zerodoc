@@ -133,7 +133,6 @@ As an example, in a GNU/Linux Debian 6.0 'Squeeze' system, the
 requirements can be installed using:
 
  # apt-get install python-ply
- # 
 
 2.2 Installing the library and interpreter
 
