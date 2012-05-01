@@ -1,8 +1,16 @@
-Current unresolved bugs in the zerodoc parser
+Current unresolved bugs/tasks in the zerodoc parser
 
 Abstract
 
 - Default Zerodoc schema makes abstract mandatory
+- TODO: links
+- TODO: attributes
+- TODO: HTML output finish
+- TODO: Templates/schemas support
+- TODO: manpage support with 'linkback'
+- TODO: markdown/confluence output support
+- TODO: asciidoc output
+- TODO: ReST output
 
 DEFAULT ZERODOC SCHEMA MAKES ABSTRACT MANDATORY
 
@@ -11,7 +19,40 @@ the default format as not having title? How can we distinguish
 between a first paragraph and the title if we allow for multiline
 titles and one-line paragraphs?
 
-HANDLE CONTINUATION LINES AND LINE LENGTH LIMITS
+TODO: links
 
-This is perhaps easier to do in a pre-ply processing of input
+Define and implement a consistent format for links that allows both
+referenced (wikipedia, rfc's) links and direct on-text ones.
+
+TODO: attributes
+
+Implement a way to represent text attributes in the parsed tree
+Thought on extending the dictionary
+
+TODO: HTML output finish
+
+Finish HTML support for described format with diagrams and images
+
+TODO: Templates/schemas support
+
+Add support for schemas with a format that both define top-level
+syntax rules like document : header body, etc and some lexical
+limitations like line lengths and such (for git commit comments)
+
+TODO: manpage support with 'linkback'
+
+Not only manpage format output, but a way to include a certain
+part of a document to be a manual page, and _reference_ inside
+that part the rest (To include zerodoc text format description
+in the manual page, but *after* explaining the zerodoc command
+line program in the regular manpage way)
+
+TODO: markdown/confluence output support
+
+TODO: asciidoc output
+
+TODO: ReST output
+
+For the pretty Sphinx
+
 

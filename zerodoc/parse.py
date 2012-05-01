@@ -315,7 +315,10 @@ def preprocess(s):
                     if line[n] == '-':
                         o = append(o, line)
                     else:
-                        o = append(o[:-1], ' ' + line[n:])
+                        if o[-2:] == '\\\n':
+                            o = append(o, line[n:])
+                        else:
+                            o = append(o[:-1], ' ' + line[n:])
                 else:
                     insource = True
                     # No backslash substitution for source

@@ -22,11 +22,18 @@ can be used as templates for editing those comments, etc.
 Table of contents
 
 - 1. The zerodoc format
- - 1.1 Header
-  - 1.1.1 Title
-  - 1.1.2 Abstract
- - 1.2 Source code
- - 1.3 Diagrams
+ - 1.1 Paragraphs and lines
+ - 1.2 Lists
+ - 1.3 Formatting attributes
+ - 1.4 Links
+ - 1.5 Source code
+ - 1.6 Diagrams
+ - 1.7 The default zerodoc template
+  - 1.7.1 Header
+   - 1.7.1.1 Title
+   - 1.7.1.2 Abstract
+   - 1.7.1.3 Table of contents
+  - 1.7.2 Body
 - 2. Installing zerodoc
  - 2.1 Prerrequisites
  - 2.2 Installing the library and interpreter
@@ -35,17 +42,16 @@ Table of contents
 - 3. Using the command line converter
  - NAME
  - SYNOPSIS
- - 3.1 Calling conventions
- - 3.2 HTML output options
- - 3.3 JSON output options
- - 3.4 Markdown generator options
- - 3.5 Manpage generator options
+ - HTML output options
+ - JSON output options
+ - Markdown output options
+ - Manpage generator options
 - 4. Using the parser
  - 4.1 Example parsed tree
  - 4.2 Example generator: HTML
-- 5. Defining input rules
- - 5.1 Rules file format
- - 5.2 Command line converter options
+- 5. Defining templates
+ - 5.1 Templates file format
+ - 5.2 Command line converter
  - 5.3 Feeding the library
  - 5.4 Example: git hook
 - 6. Zerodoc internals
@@ -55,43 +61,93 @@ Table of contents
 
 1. THE ZERODOC FORMAT
 
+1.1 Paragraphs and lines
+
 Zerodoc files are simple text files organized in paragraphs. A
 paragraph is a group of text lines separated from other paragraphs
 by blank lines. Lists and source code copied *verbatim* can be
 defined. An unintrusive format for links is used, based on
-a references system
+a references system.
 
-1.1 Header
+Lines are limited to 72 characters for regular (not code 
+or diagrams) text. If you need to put something more into a line
+(for example, a long URL), divide it in two and put a backslash (\)
+with no spaces at the end.
 
-The header in a zerodoc document contains the title, an optional
-abstract and a table of contents. The table of contents needs to
-be updated by hand (this is different from other well known text
-formats but allow zerodoc to have free-form titles (no --- nor
-~~~ nor any other form of markup is needed):
+Example:
 
- This is the title, that can spawn several
- lines
+ This is a very long url that needs to be splitted in three:
+ http://www.reallyreallyreallylonguniformresourcelocatorredir\
+ ection.com/redirectionator.php?theredirectioncode=d72a565ab8\
+ 7dedf7b5fa84b3ec4b9f11
 
- This are one or several paragraphs of abstract
+Renders into:
 
- 1. Title 1
- 2. Title 2
+This is a very long url that needs to be splitted in three:
+http://www.reallyreallyreallylonguniformresourcelocatorredir\
+ection.com/redirectionator.php?theredirectioncode=d72a565ab8\
+7dedf7b5fa84b3ec4b9f11
 
-1.1.1 Title
+1.2 Lists
 
-The title can spawn several lines (a whole paragraph) that will be
-joined together on output
+Lists are defined as paragrahps prefixed with a dash, and can be
+nested. Example
 
-The table of contents can be prefixed by a 'Table of conents' line
-that will be recognized automatically as the TOC title. If that line
-is not present, it will also be ommited on the transformed output.
+ - The first element in a list
+ - A nested element into the first consisting of two lines
+   that are joined on output
+ - Another nested element
+ - The third element in a list
 
-1.1.2 Abstract
+Renders into:
 
-The abstract is a group of paragraphs that appear before the Table
-of content.
+- The first element in a list
+ - A nested element into the first consisting of two lines
+   that are joined on output
+ - Another nested element
+- The third element in a list
 
-1.2 Source code
+Backslash joining also occur inside list elements:
+
+ - The first element in a list. as it have two lines
+   with no backslash, an space is inserted between 'lines' and 'with'
+ - To join the two lines without adding a space a back\
+   slash is used. Note that the two spaces formatting the listline are
+   removed
+
+renders into:
+
+- The first element in a list. as it have two lines
+  with no backslash, an space is inserted between 'lines' and 'with'
+- To join the two lines without adding a space a back\
+  slash is used. Note that the two spaces formatting the listline are
+  removed after the backslash
+
+NOTE: There are no numbered lists. In the "phylosophy" of zerodoc,
+numbers can not be omited from the original text nor 'computed'
+because that will make the text less readable than it's processed
+output.
+
+1.3 Formatting attributes
+
+Some attributes for the text inherited from other common formats and
+email conventions are supported:
+
+ - This is an *emphasis*
+ - This is an _underline_ (cursive on certain displays or formats,
+   as in manual pages)
+ - This is a 'cursive'
+
+Renders into:
+
+- This is an *emphasis*
+- This is an _underline_ (cursive on certain displays or formats,
+  as in manual pages)
+- This is a 'cursive'
+
+1.4 Links
+
+1.5 Source code
 
 Source code is text that will be included verbatim in the output. In
 source code, newlines are meaningful and no limits on line-length are
@@ -104,7 +160,7 @@ or use a tool like expand(1) to do it for you. Blank lines are also
 included verbatim, up to the one delimiting the next 'regular'
 paragraph (one that contains text and starts on the first column)
 
-1.3 Diagrams
+1.6 Diagrams
 
 Diagrams can be either included directly in the output, just as
 source code, or optionally converted to images (when this is
@@ -121,6 +177,42 @@ a 'regular' text paragraph (starting on the first column) between
 them. This makes sense since no diagram can follow source code or
 viceversa without at least an introduction of what the reader is
 seeing.
+
+1.7 The default zerodoc template
+
+1.7.1 Header
+
+The header in a zerodoc document contains the title, an optional
+abstract and a table of contents. The table of contents needs to
+be updated by hand (this is different from other well known text
+formats but allow zerodoc to have free-form titles (no --- nor
+~~~ nor any other form of markup is needed):
+
+ This is the title, that can spawn several
+ lines
+
+ This are one or several paragraphs of abstract
+
+ 1. Title 1
+ 2. Title 2
+
+1.7.1.1 Title
+
+The title can spawn several lines (a whole paragraph) that will be
+joined together on output
+
+The table of contents can be prefixed by a 'Table of conents' line
+that will be recognized automatically as the TOC title. If that line
+is not present, it will also be ommited on the transformed output.
+
+1.7.1.2 Abstract
+
+The abstract is a group of paragraphs that appear before the Table
+of content.
+
+1.7.1.3 Table of contents
+
+1.7.2 Body
 
 2. INSTALLING ZERODOC
 
@@ -141,7 +233,6 @@ requirements can be installed using:
 Clone the github repository using
 
  $ git clone git://github.com/odkq/zerodoc.git
- $
 
 Change to the zerodoc dir and call setup.py as root
 
@@ -152,21 +243,25 @@ Change to the zerodoc dir and call setup.py as root
 
 3. Using the command line converter
 
+This chapter is organized as a manual page because it serves
+also as the source for the 'zerodoc' program manual page.
+How to extract manual pages from full documents or parts of them
+with zerodoc is included in the manual page itself (yo dawg)
+
 NAME
 
-zerodoc - converts a zerodoc text file to HTML/markdown
+zerodoc - converts a zerodoc text file to HTML and many
+other formats
 
 SYNOPSIS
 
-3.1 Calling conventions
+HTML output options
 
-3.2 HTML output options
+JSON output options
 
-3.3 JSON output options
+Markdown output options
 
-3.4 Markdown generator options
-
-3.5 Manpage generator options
+Manpage generator options
 
 4. Using the parser
 
@@ -174,11 +269,11 @@ SYNOPSIS
 
 4.2 Example generator: HTML
 
-5. Defining input rules
+5. Defining templates
 
-5.1 Rules file format
+5.1 Templates file format
 
-5.2 Command line converter options
+5.2 Command line converter
 
 5.3 Feeding the library
 
