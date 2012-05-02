@@ -1,9 +1,9 @@
 zerodoc
 
-Version 0.0.1. Last updated 2012-04-14
+Version 0.0.1. Last updated 2012-04-14 pablo@odkq.com
 
-Zerodoc is a "plain text format" in the spirit of asciidoc, POD or
-markdown, with an emphasis on simplicity and extensibility.
+Zerodoc is a "plain text format" in the spirit of `asciidoc`, `POD` 
+or `markdown`, with an emphasis on simplicity and extensibility.
 Very few formatting options are avaliable, both to keep the parser
 simple and to make it easy to write new generators for the whole
 format.
@@ -15,7 +15,7 @@ HTML, markdown, JSON and manpages (troff) formats.
 
 Finally, the library can be used to define a set of rules for a
 certain document. This can be used to make translator scripts for
-git commit comments and translate them and upload to a Wiki, for
+`git` commit comments and translate them and upload to a Wiki, for
 example (one of the origins of this program), or others. The rules
 can be used as templates for editing those comments, etc.
 
@@ -58,6 +58,7 @@ Table of contents
  - 6.1 The PLY parser
  - 6.2 "Adjusted" sections
  - 6.3 Extending zerodoc
+- 7. References
 
 1. THE ZERODOC FORMAT
 
@@ -166,7 +167,7 @@ Diagrams can be either included directly in the output, just as
 source code, or optionally converted to images (when this is
 possible, for example in a manual page it does not make sense to
 include images). Diagrams are converted using aafigure. Refer to
-it's manual page [here:] for help
+the `aafigure manual page` for help.
 
 Diagrams are recognized by using TWO or more spaces before the
 first line of them. Anything up to the next 'regular' paragraph
@@ -212,7 +213,41 @@ of content.
 
 1.7.1.3 Table of contents
 
+The table of contents is a list of the titles of the different
+sections, for example
+
+ - 1. Section one
+ - 2. Section two
+ - 3. Third section
+
+Will define the table of contents of a document, if found in the
+header (after the abstract). If a title listed here is not found
+in the document, an error is yielded.
+
 1.7.2 Body
+
+The body is formed by several paragraphs. Paragraphs are divided
+into sections by lines with titles. The lines with titles should
+appear in the TOC and should have the same content as the TOC.
+Optionally they can be in uppercase for clarity. As the transformed
+document usually will have better ways to emphasize the title, 
+the lowercase format used in the TOC will be used regardless of
+uppercase being used. For example, the next section of this document
+starts with
+
+ 2. INSTALLING ZERODOC
+
+ 2.1 Prerrequisites
+
+And in the TOC the pertinent lines appear as:
+
+    - 1.7.1.3 Table of contents
+   - 1.7.2 Body
+ - 2. Installing zerodoc
+  - 2.1 Prerrequisites
+
+As you can see on the start of the next section, the title appears
+in lowercase (as in the TOC above)
 
 2. INSTALLING ZERODOC
 
@@ -286,4 +321,21 @@ Manpage generator options
 6.2 "Adjusted" sections
 
 6.3 Extending zerodoc
+
+7. References
+
+This section will not appear in renditions, is a way to keep
+hiperlinks out of the text:
+
+- `git`:http://git-scm.com/
+- `POD`:http://search.cpan.org/dist/perl/pod/perlpod.pod
+- `markdown`:http://daringfireball.net/projects/markdown/
+- `orgmode`:http://orgmode.org/
+- `creole`:http://wikicreole.org/
+- `mediawiki`:http://www.mediawiki.org/wiki/Help:Formatting
+- `reST`:http://docutils.sourceforge.net/rst.html
+- `asciidoc`:http://www.methods.co.nz/asciidoc/
+- `rdoc`:http://rdoc.sourceforge.net/
+- `textile`:http://www.textism.com/tools/textile/index.php
+- `aafigure manual page`:http://packages.python.org/aafigure/manual.html
 

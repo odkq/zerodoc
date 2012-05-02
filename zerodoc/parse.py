@@ -110,7 +110,70 @@ def p_paragraph(p):
                  | sourcelines NEWLINE
                  | listlines NEWLINE
     '''
+    # A paragraph made from listlines can be a list of
+    # links
+    if 'listlines' in p[1]:
+        print 'p_paragraph(): [' + str(p[1]['listlines']) + ']'
     p[0] = p[1]
+
+def extract_links(x):
+    """Extract links/references from a line. Returns a dictionary
+    of {'links':[[keyword,pos,link],...,[keyword,pos,link]],
+    'references':[[keyword,pos],...,[keyword,pos]],
+    'modified_string': s }
+
+    The modified string will not have nor links or references
+    on it, and the positions in the array of links/references
+    for both are relative to this modified string, not to the
+    original one
+    
+    >>> extract_links('text line `name`:http://pepe.com continue')
+    {'modified_string': 'text line  continue', 'references': [],\
+ 'links': [['name', 10, 'http://pepe.com']]}
+
+    >>> extract_links('text line `reference1` and `reference2`')
+    {'modified_string': 'text line  and ', 'references':\
+ [['reference1', 10], ['reference2', 15]], 'links': []}
+
+    """
+    modified_string = ''
+    offset = 0
+    references = []
+    links = []
+    while True:
+        s = x[offset:]
+        local_modified_string = ''
+        first = s.find('`')
+        if first == -1:
+            modified_string += s
+            break
+        second = s[first+1:].find('`')
+        if second == -1:
+            modified_string += s
+            break
+        if (second+first+2) >= len(s) or s[second+first+2] != ':':
+            # no link afterwards, thus it is a reference
+            pos = first + len(modified_string)
+            local_modified_string += s[:first]
+            # local_modified_string += s[(second+first+3):]
+            offset += second+first+2
+            ref = s[first+1:second+first+1]
+            references.append([ref, pos])
+        else:
+            third = s[second+first+3:].find(' ')
+            if third == -1:
+                # eol
+                third = len(s)
+            pos = first + len(modified_string)
+            local_modified_string += s[:first]
+            # local_modified_string += s[second+first+third+3:]
+            offset += second+first+third+3
+            ref = s[first+1:second+first+1]
+            link = s[second+first+3:second+first+third+3]
+            links.append([ref, pos, link])
+        modified_string += local_modified_string
+    return {'links': links, 'references':references,
+            'modified_string': modified_string }
 
 def p_textpara(p):
     '''textpara : textlines NEWLINE'''
@@ -354,4 +417,8 @@ def parse(s):
     if os.path.exists('lextab.py'):
         os.remove('lextab.py')
     return doc, None
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
 

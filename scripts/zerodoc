@@ -22,8 +22,9 @@
 import sys
 import zerodoc.parse
 import zerodoc.html
+import json
 
-DEBUG=False
+DEBUG=True
 
 def parse_file(path):
     ''' Return the syntax tree after parsing a file, or None, 'error string'
@@ -41,12 +42,12 @@ def parse_file_into(input, output):
     f = open(output, 'w')
     d, errstr = parse_file(input)
     if DEBUG:
-        print '--- python tree: '
-        print str(d)
-        print '--- JSON output: '
-        # print json.dumps(d, indent=2)
-        print '--- HTML output: '
-        print zerodoc.html.write(d)
+        # print '--- python tree: '
+        # print str(d)
+        #print '--- JSON output: '
+        print json.dumps(d, indent=2)
+        #print '--- HTML output: '
+        #print zerodoc.html.write(d)
     f.write(zerodoc.html.write(d))
     f.close()
     return True
