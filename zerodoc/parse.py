@@ -32,13 +32,14 @@ import ply.yacc as yacc
 # For the time being ...
 DEBUG=True
 
-tokens = ( 'SOURCE', 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' , 'NEWLINE')
+tokens = ( 'SOURCE', 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' , 'FIRSTDIAGRAM', 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
 t_TEXTLIST=r'[\ ]+-[^\n]+'
 t_FIRSTLIST=r'-[^\n]+'
 t_SOURCE=r'[^-\n][^\n]*'
 t_FIRSTSOURCE=r'\ [^-\n\ ][^\n]*'
+t_FIRSTDIAGRAM=r'\ [\ ]+[^-\n\ ][^\n]*'
 
 # precedence = (
 #    ('left', 'FIRSTTEXTLIST', 'TEXTLIST'),
@@ -109,11 +110,13 @@ def p_paragraph(p):
     '''paragraph : textlines NEWLINE
                  | sourcelines NEWLINE
                  | listlines NEWLINE
+                 | diagramlines NEWLINE
     '''
     # A paragraph made from listlines can be a list of
     # links
     if 'listlines' in p[1]:
-        print 'p_paragraph(): [' + str(p[1]['listlines']) + ']'
+        pass
+        # print 'p_paragraph(): [' + str(p[1]['listlines']) + ']'
     p[0] = p[1]
 
 def extract_links(x):
@@ -190,33 +193,49 @@ def p_listlines(p):
         p[0]['listlines'].append(p[2])
     else:
         p[0] = { 'listlines': [p[1], p[2]] }
- 
-def p_sourcelines(p):
-    '''sourcelines : sourcelines sourceline
-                   | sourcelines firstsource
-                   | firstsource sourceline
-                   | firstsource 
-                   | sourcelines NEWLINE sourceline
-                   | sourcelines NEWLINE firstsource'''
+
+# Used both for diagrams and source
+def insert_source_diagram_vector(p, keyg, key):
     # | firstsource
     if len(p) == 4:
         # create a pseudo p vector
         v = []
         v.append(p[0])
         # reappend the new line
-        p[1]['sourcelines'][len(p[1]['sourcelines']) - 1]['sourceline'] += '\n'
+        p[1][keyg][len(p[1][keyg]) - 1][key] += '\n'
         v.append(p[1])
         v.append(p[3])
-        append_or_create('sourcelines', v)
-        p[0] = v[0]
+        append_or_create(keyg, v)
+        r = v[0]
     elif len(p) == 2:
-        p[0] = { 'sourcelines': [p[1]] }
+        r = { keyg: [p[1]] }
     else:
-        if 'sourcelines' in p[1]:
-            p[0] = p[1]
-            p[0]['sourcelines'].append(p[2])
+        if keyg in p[1]:
+            r = p[1]
+            r[keyg].append(p[2])
         else:
-            p[0] = { 'sourcelines': [p[1], p[2]] }
+            r = { keyg: [p[1], p[2]] }
+    return r
+ 
+def p_sourcelines(p):
+    '''sourcelines : sourcelines sourceline
+                   | sourcelines firstsource
+                   | sourcelines firstdiagram
+                   | firstsource sourceline
+                   | firstsource 
+                   | sourcelines NEWLINE sourceline
+                   | sourcelines NEWLINE firstsource'''
+    p[0] = insert_source_diagram_vector(p, 'sourcelines', 'sourceline')
+
+def p_diagramlines(p):
+    '''diagramlines : diagramlines sourceline
+                    | diagramlines firstsource
+                    | diagramlines firstdiagram
+                    | firstdiagram sourceline
+                    | firstdiagram
+                    | diagramlines NEWLINE sourceline
+                    | diagramlines NEWLINE firstdiagram'''
+    p[0] = insert_source_diagram_vector(p, 'diagramlines', 'diagramline')
 
 def p_textlines(p):
     '''textlines : textlines textline
@@ -226,6 +245,10 @@ def p_textlines(p):
 def p_firstsource(p):
     '''firstsource : FIRSTSOURCE NEWLINE
                    | TEXTLIST NEWLINE'''
+    p[0] = { 'sourceline': p[1] } 
+
+def p_firstdiagram(p):
+    '''firstdiagram : FIRSTDIAGRAM NEWLINE'''
     p[0] = { 'sourceline': p[1] } 
 
 def p_sourceline(p):

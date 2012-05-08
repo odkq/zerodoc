@@ -24,16 +24,11 @@ import zerodoc.parse
 import zerodoc.html
 import json
 
-DEBUG=True
-
 def parse_file(path):
     ''' Return the syntax tree after parsing a file, or None, 'error string'
         if an error parsing it is encountered ''' 
     f = open(path, 'r')
     s = f.read()
-    if DEBUG:
-        print '--- input: '
-        print(s)
     return zerodoc.parse.parse(s)
 
 def parse_file_into(input, output):
@@ -41,20 +36,24 @@ def parse_file_into(input, output):
         file ''' 
     f = open(output, 'w')
     d, errstr = parse_file(input)
-    if DEBUG:
-        # print '--- python tree: '
-        # print str(d)
-        #print '--- JSON output: '
-        print json.dumps(d, indent=2)
-        #print '--- HTML output: '
-        #print zerodoc.html.write(d)
     f.write(zerodoc.html.write(d))
     f.close()
     return True
 
+def parse_file_into_json(input, output):
+    f = open(output, 'w')
+    d, errstr = parse_file(input)
+    f.write(json.dumps(d, indent=2))
+    f.close()
+    return True
+
 if __name__=="__main__": 
-   if len(sys.argv) != 3:
-       print 'Usage: zerodoc [-f <format>] [-p <format options>] [filename] [output]'
+   if len(sys.argv) < 3:
+       print 'Usage: zerodoc <filename> <htmloutput> [jsonoutput]'
        sys.exit(1)
-   parse_file_into(sys.argv[1], sys.argv[2])
+   elif len(sys.argv) == 4:
+   	parse_file_into_json(sys.argv[1], sys.argv[3])
+   	parse_file_into(sys.argv[1], sys.argv[2])
+   else:
+   	parse_file_into(sys.argv[1], sys.argv[2])
 
