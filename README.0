@@ -95,9 +95,9 @@ Lists are defined as paragrahps prefixed with a dash, and can be
 nested. Example
 
  - The first element in a list
- - A nested element into the first consisting of two lines
-   that are joined on output
- - Another nested element
+  - A nested element into the first consisting of two lines
+    that are joined on output
+  - Another nested element
  - The third element in a list
 
 Renders into:
@@ -152,7 +152,15 @@ Renders into:
 
 Source code is text that will be included verbatim in the output. In
 source code, newlines are meaningful and no limits on line-length are
-imposed.
+imposed. An example:
+
+ for (i = 0; i < nblocks; i++) { 
+         gid_t *b; 
+         b = (void *)__get_free_page(GFP_USER); 
+         if (!b) 
+                 goto out_undo_partial_alloc; 
+         group_info->blocks[i] = b; 
+ }
 
 Source code is identified by one space before the content of
 the first line and one or more spaces in the rest. No tabs can
@@ -161,12 +169,30 @@ or use a tool like expand(1) to do it for you. Blank lines are also
 included verbatim, up to the one delimiting the next 'regular'
 paragraph (one that contains text and starts on the first column)
 
+To illustrate source code, i am going to paste the source code (yo
+dawg) of the example above, along with the regular paragraph-lines
+sorrounding it:
+
+ source code, newlines are meaningful and no limits on line-length are
+ imposed. An example:
+ 
+  for (i = 0; i < nblocks; i++) { 
+          gid_t *b; 
+          b = (void *)__get_free_page(GFP_USER); 
+          if (!b) 
+                  goto out_undo_partial_alloc; 
+          group_info->blocks[i] = b; 
+  }
+
+ Source code is identified by one space before the content of
+ the first line and one or more spaces in the rest. No tabs can
+
 1.6 Diagrams
 
 Diagrams can be either included directly in the output, just as
 source code, or optionally converted to images (when this is
 possible, for example in a manual page it does not make sense to
-include images). Diagrams are converted using aafigure. Refer to
+include images). Diagrams are converted using ditaa. Refer to
 the `aafigure manual page` for help.
 
 Diagrams are recognized by using TWO or more spaces before the
@@ -178,6 +204,34 @@ a 'regular' text paragraph (starting on the first column) between
 them. This makes sense since no diagram can follow source code or
 viceversa without at least an introduction of what the reader is
 seeing.
+
+ This is the source code of the following paragraph
+ (diagram taken from the `ditaa website`:
+ 
+  +--------+   +-------+    +-------+
+  |        | --+ ditaa +--> |       |
+  |  Text  |   +-------+    |diagram|
+  |Document|   |!magic!|    |       |
+  |     {d}|   |       |    |       |
+  +---+----+   +-------+    +-------+
+       :                         ^
+       |       Lots of work      |
+       +-------------------------+
+
+This is the source code of the following paragraph
+(diagram taken from the `ditaa website`:
+
+  +--------+   +-------+    +-------+
+  |        | --+ ditaa +--> |       |
+  |  Text  |   +-------+    |diagram|
+  |Document|   |!magic!|    |       |
+  |     {d}|   |       |    |       |
+  +---+----+   +-------+    +-------+
+       :                         ^
+       |       Lots of work      |
+       +-------------------------+
+
+Note that there are two spaces before the first +---
 
 1.7 The default zerodoc template
 
