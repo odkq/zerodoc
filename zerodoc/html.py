@@ -155,15 +155,17 @@ def write(doc, options = ['ditaa', 'datauri']):
     '''
     Output the HTML 2.0 rendering of a doc tree
     '''
-    o = '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 Strict//EN">\n'
-    o += '<html>\n'
-    o += '<head>\n'
-    o += '<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" >'
-    o += '<title>\n'
-    for titleline in doc['header']['title']['textlines']:
-        o += titleline['textline'] + '\n'
-    o += '</title>\n'
-    o += '<body>\n'
+    o = ''
+    if not 'noheaders' in options:
+        o += '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 Strict//EN">\n'
+        o += '<html>\n'
+        o += '<head>\n'
+        o += '<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" >'
+        o += '<title>\n'
+        for titleline in doc['header']['title']['textlines']:
+            o += titleline['textline'] + '\n'
+        o += '</title>\n'
+        o += '<body>\n'
     o += '<h1>\n'
     for titleline in doc['header']['title']['textlines']:
         o += titleline['textline'] + '\n'
@@ -173,10 +175,10 @@ def write(doc, options = ['ditaa', 'datauri']):
        o += write_html_paragraph(options, para)
     # o += '<h2>Table of contents</h2>'
     o += write_html_paragraph(options, doc['header']['toc'], toc=True)
-
     for section in doc['body']['sections']:
         o += write_html_section(options, section) 
-    o += '</body>'
-    o += '</html>'
+    if not 'noheaders' in options:
+        o += '</body>'
+        o += '</html>'
     return o
 

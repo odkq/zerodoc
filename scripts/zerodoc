@@ -20,40 +20,59 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import sys
-import zerodoc.parse
 import zerodoc.html
+import zerodoc.parse
 import json
+import optparse
 
-def parse_file(path):
-    ''' Return the syntax tree after parsing a file, or None, 'error string'
-        if an error parsing it is encountered ''' 
-    f = open(path, 'r')
-    s = f.read()
-    return zerodoc.parse.parse(s)
-
-def parse_file_into(input, output):
+def parse_file_into(i, o, f, fopt):
     ''' Transform the zerodoc input and write the result into another
-        file ''' 
-    f = open(output, 'w')
-    d, errstr = parse_file(input)
-    f.write(zerodoc.html.write(d))
-    f.close()
-    return True
+        file '''
+    s = i.read()
+    d, errstr = zerodoc.parse.parse(s)
+    if errstr != None:
+        return errstr
+    if f == 'html':
+         o.write(zerodoc.html.write(d, fopt))
+    elif f == 'json':
+	 o.write(json.dumps(d, indent=2))
+    else:
+         return 'unknown format \'' + f + '\' requested.'
+    return None
 
-def parse_file_into_json(input, output):
-    f = open(output, 'w')
-    d, errstr = parse_file(input)
-    f.write(json.dumps(d, indent=2))
-    f.close()
-    return True
-
-if __name__=="__main__": 
-   if len(sys.argv) < 3:
-       print 'Usage: zerodoc <filename> <htmloutput> [jsonoutput]'
-       sys.exit(1)
-   elif len(sys.argv) == 4:
-   	parse_file_into_json(sys.argv[1], sys.argv[3])
-   	parse_file_into(sys.argv[1], sys.argv[2])
-   else:
-   	parse_file_into(sys.argv[1], sys.argv[2])
+usage = '''
+Usage: zerodoc [-f <format>] [-o <format options>] [-i <inputfile>] [-O <outputfile>]
+       formats: html json manpage rest confluence markdown
+       if format is ommited, html is select by default
+       if input file is ommited, stdin is used
+       if output file is ommited, stdout is used
+'''
+if __name__=="__main__":
+    parser = optparse.OptionParser()
+    parser.add_option("-f", "--format", dest="format", default="html",
+                      help="Output format. If ommited, 'html'")
+    parser.add_option("-o", "--options", dest="options",
+                      help="Options for format renderer")
+    parser.add_option("-i", "--input", dest="input", default="stdin",
+                      help="Use <filename> as input file. If ommited, use stdin.", metavar="FILE")
+    parser.add_option("-O", "--output", dest="output", default="stdout",
+                      help="Use <filename> as output file. If ommited, use stdout.", metavar="FILE")
+    (o, a) = parser.parse_args()
+    if o.options:
+	fopts = o.options.split(' ')
+    if o.input == 'stdin':
+        fin = sys.stdin
+    else:
+    	fin = open(o.input, 'r')
+    if o.output  == 'stdout':
+        fout = sys.stdout
+    else:
+    	fout = open(o.output, 'w')
+    r = parse_file_into(fin, fout, o.format, o.options)
+    fin.close()
+    fout.close()
+    if r != None:
+	print 'ERROR: ' + r
+	sys.exit(1)
+    sys.exit(0)
 
