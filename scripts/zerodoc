@@ -34,6 +34,8 @@ def parse_file_into(i, o, f, fopt):
         return errstr
     if f == 'html':
          o.write(zerodoc.html.write(d, fopt))
+    elif f == 'confluence':
+         o.write(zerodoc.confluence.write(d, fopt))
     elif f == 'json':
 	 o.write(json.dumps(d, indent=2))
     else:
