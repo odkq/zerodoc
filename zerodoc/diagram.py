@@ -30,12 +30,12 @@ def generate_diagram(buffer, format):
     f.close()
     os.de
 
-def extract_option(options, key)
+def extract_option(options, key):
     for o in options:
         b = o.split(':')
-            if len(b) == 2:
-                if b[0] == key:
-                    return b[1]
+        if len(b) == 2:
+            if b[0] == key:
+                return b[1]
     return None
 
 def generate_diagram_ditaa(path, options):
@@ -50,33 +50,36 @@ def generate_diagram_ditaa(path, options):
     j = o[i:].find('\n')
     return o[i+19:i+j]
 
-def write_diagramlines(options, diagramlines):
-    if 'rawdiagrams' in options:
-        return write_sourcelines(options, diagramlines)
-    if not 'datauri' in options:
-        if not os.path.exists('images'):
-            os.mkdir('images')
-        f = tempfile.NamedTemporaryFile(delete=False, prefix='zero', dir='images')
+def generate_diagram_aafigure(path, options):
+    jarpath = extract_option(options, '')
+    # aafigure diagram -t svg -o diagram.svg
+    if 'svg' in options:
+        outpath = path + '.svg'
+        r = ['aafigure', path, '-t', 'svg', '-o', outpath]
     else:
-        f = tempfile.NamedTemporaryFile(delete=False)
-    for sline in diagramlines:
-        if 'sourceline' in sline:
-            f.write(sline['sourceline'] + '\n')
-        else:
-            print 'unknown element in sourcelines (diagram)' + str(sline) +\
-            ' ' + str(sline.keys())
-    n = f.name
+        outpath = path + '.png'
+        r = ['aafigure', path, '-t', 'png', '-o', outpath]
+    p = subprocess.Popen(r, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    o = p.communicate()[0]
+    return outpath
+
+# get_diagram_ditaa:
+# Return the diagram bitmap in a buffer
+def get_diagram_ditaa(options, lines):
+    f = tempfile.NamedTemporaryFile(delete=False)
+    for line in lines:
+        f.write(line + '\n')
     f.close()
-    dfile = generate_diagram_image(n)
+    n = f.name
+    if 'ditaa' in options:
+        dfile = generate_diagram_ditaa(n, options)
+    elif 'aafigure' in options:
+        dfile = generate_diagram_aafigure(n, options)
     os.remove(n)
     if dfile == None:
-        return ''
-    else:
-        if not 'datauri' in options:
-            return '<img src="' + dfile + '" />\n'
-        else:
-            # Taken from http://en.wikipedia.org/wiki/Data_URI_scheme#Python
-            duri = str(base64.encodestring(open(dfile, "rb").read())).replace("\n", "")
-            t = '<img alt="sample" src="data:image/png;base64,{0}">\n'.format(duri)
-            os.remove(dfile)
-            return t
+        return None
+    f = open(dfile, 'r')
+    r = f.read()
+    f.close()
+    return r
+

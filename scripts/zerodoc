@@ -58,6 +58,7 @@ if __name__=="__main__":
     parser.add_option("-O", "--output", dest="output", default="stdout",
                       help="Use <filename> as output file. If ommited, use stdout.", metavar="FILE")
     (o, a) = parser.parse_args()
+    fopts = None
     if o.options:
 	fopts = o.options.split(' ')
     if o.input == 'stdin':
@@ -68,7 +69,7 @@ if __name__=="__main__":
         fout = sys.stdout
     else:
     	fout = open(o.output, 'w')
-    r = parse_file_into(fin, fout, o.format, o.options)
+    r = parse_file_into(fin, fout, o.format, fopts)
     fin.close()
     fout.close()
     if r != None:

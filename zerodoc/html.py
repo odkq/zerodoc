@@ -22,7 +22,7 @@ import cgi
 import base64
 import hashlib
 import tempfile
-import subprocess
+import zerodoc.diagram
 
 def get_header_link(s):
     h = hashlib.new('ripemd160')
@@ -87,47 +87,35 @@ def write_textlines(options, textlines):
     o += '</p>\n'
     return o
 
-def generate_diagram_image(path):
-    r = ['java', '-jar', '/opt/ditaa0_9.jar', path ]
-    p = subprocess.Popen(r, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    o = p.communicate()[0]
-    i = o.find('Rendering to file: ')
-    if i == -1:
-        print 'Error generating diagram!'
-        return None
-    j = o[i:].find('\n')
-    return o[i+19:i+j]
-
 def write_diagramlines(options, diagramlines):
+    dlines = []
     if 'rawdiagrams' in options:
         return write_sourcelines(options, diagramlines)
+    for sline in diagramlines:
+        if 'sourceline' in sline:
+            dlines.append(sline['sourceline'])
+        else:
+            print 'unknown element in sourcelines (diagram)' + str(sline) +\
+            ' ' + str(sline.keys())
+    img = zerodoc.diagram.get_diagram_ditaa(options, dlines)
+    if img == None:
+        return ''
     if not 'datauri' in options:
         if not os.path.exists('images'):
             os.mkdir('images')
         f = tempfile.NamedTemporaryFile(delete=False, prefix='zero', dir='images')
+        f.write(img)
+        n = f.name
+        f.close()
+        return '<img src="' + n + '" />\n'
+
+    duri = str(base64.encodestring(img)).replace("\n", "")
+    if not 'svg' in options:
+        t = '<img alt="sample" src="data:image/png;base64,{0}">\n'.format(duri)
     else:
-        f = tempfile.NamedTemporaryFile(delete=False)
-    for sline in diagramlines:
-        if 'sourceline' in sline:
-            f.write(sline['sourceline'] + '\n')
-        else:
-            print 'unknown element in sourcelines (diagram)' + str(sline) +\
-            ' ' + str(sline.keys())
-    n = f.name
-    f.close()
-    dfile = generate_diagram_image(n)
-    os.remove(n)
-    if dfile == None:
-        return ''
-    else:
-        if not 'datauri' in options:
-            return '<img src="' + dfile + '" />\n'
-        else:
-            # Taken from http://en.wikipedia.org/wiki/Data_URI_scheme#Python
-            duri = str(base64.encodestring(open(dfile, "rb").read())).replace("\n", "")
-            t = '<img alt="sample" src="data:image/png;base64,{0}">\n'.format(duri)
-            os.remove(dfile)
-            return t
+        t = '<img alt="sample" src="data:image/svg;base64,{0}">\n'.format(duri)
+    return t
+
  
 def write_html_paragraph(options, para, toc = False):
     o = ''
