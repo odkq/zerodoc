@@ -75,6 +75,9 @@ def get_diagram_ditaa(options, lines):
         dfile = generate_diagram_ditaa(n, options)
     elif 'aafigure' in options:
         dfile = generate_diagram_aafigure(n, options)
+    else:
+        print 'Specify a conversor for diagrams! (ditaa or aafigure)'
+        return None
     os.remove(n)
     if dfile == None:
         return None

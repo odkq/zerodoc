@@ -33,13 +33,14 @@ def write_listlines(options, listlines, toc):
     lastlevel = 0
     o = ''
     for uline in listlines:
-        o = '*'
+        s = '*'
         for i in range(uline['listline']['level']):
-            o += '*'
+            s += '*'
         if toc:
-            o += uline['listline']['string'] + '\n'
+            s += ' ' + uline['listline']['string'] + '\n'
         else:
-            o += uline['listline']['string'] + '\n'
+            s += ' ' + uline['listline']['string'] + '\n'
+        o += s
     return o
 
 def write_sourcelines(options, sourcelines):
@@ -117,14 +118,13 @@ def write(doc, options = ['ditaa', 'datauri']):
     '''
     o = ''
     # todo put title in post
-    # o += '<h1>\n'
-    # for titleline in doc['header']['title']['textlines']:
-    #    o += titleline['textline'] + '\n'
-    # o += '</h1>\n'
-    #for para in doc['header']['abstract']['abstract']:
-    #   o += write_html_paragraph(options, para)
+    o += 'h1. '
+    for titleline in doc['header']['title']['textlines']:
+        o += titleline['textline'] + ' '
+    for para in doc['header']['abstract']['abstract']:
+       o += write_confluence_paragraph(options, para)
     # o += '<h2>Table of contents</h2>'
-    # o += write_html_paragraph(options, doc['header']['toc'], toc=True)
+    o += write_confluence_paragraph(options, doc['header']['toc'], toc=True)
     for section in doc['body']['sections']:
         o += write_confluence_section(options, section) 
     return o
