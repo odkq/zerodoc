@@ -20,34 +20,11 @@
 import os
 import cgi
 import base64
-import hashlib
 import tempfile
 import zerodoc.diagram
+import zerodoc.utils
 
-def get_header_link(s):
-    h = hashlib.new('ripemd160')
-    h.update(s.lower())
-    return h.hexdigest()[:8]
-
-def process_attributes(doc, line):
-    ''' Include attributes and links '''
-    s = ''
-    a = line['string']
-    l = 0
-    r = []
-    if 'references' in line:
-        for reference in line['references']:
-            j = reference[1] - l
-            s += cgi.escape(a[:j])
-            s += '<a href="' + doc['links'][reference[0]] + '">'
-            s += reference[0] + '</a>'
-            a = a[j:]
-            l = reference[1]
-        return s
-    else:
-        return cgi.escape(a)
-
-def write_listlines(doc, options, listlines, toc):
+def write_listlines(proc, options, listlines, toc):
     lastlevel = 0
     o = '<ul>\n'
     for uline in listlines:
@@ -74,35 +51,37 @@ def write_listlines(doc, options, listlines, toc):
             o += '</code>'
         if toc:
             o += '<li>'
-            o += '<a href="#' + get_header_link(uline['string']) +'">'
-            o += process_attributes(doc, uline)
+            o += '<a href="#' + zerodoc.utils.get_anchor(uline['string']) +'">'
+            o += proc.process(uline)
             o += '</a></li>\n'
         else:
-            o += '<li>' + process_attributes(doc, uline) + '</li>\n'
+            o += '<li>' 
+            o += proc.process(uline)
+            o += '</li>\n'
     # Unwind last <ul's>
     for i in range(lastlevel):
         o += '</ul>\n'
     o += '</ul>\n'
     return o
 
-def write_sourcelines(doc, options, sourcelines):
+def write_sourcelines(proc, options, sourcelines):
     o = '<pre>\n'
     for sline in sourcelines:
         if 'string' in sline:
-            o += process_attributes(doc, sline) + '\n'
+            o += proc.process(sline) + '\n'
         else:
             print 'no string in sourceline? ' + str(sline) + ' ' + str(sline.keys())
     o += '</pre>\n'
     return o
 
-def write_textlines(doc, options, textlines):
+def write_textlines(proc, options, textlines):
     o = '<p>\n'
     for t in textlines:
-        o += process_attributes(doc, t) + '\n'
+        o += proc.process(t)
     o += '</p>\n'
     return o
 
-def write_diagramlines(doc, options, diagramlines):
+def write_diagramlines(proc, options, diagramlines):
     dlines = []
     if 'rawdiagrams' in options:
         return write_sourcelines(options, diagramlines)
@@ -132,32 +111,33 @@ def write_diagramlines(doc, options, diagramlines):
     return t
 
  
-def write_html_paragraph(doc, options, para, toc = False):
+def write_html_paragraph(proc, options, para, toc = False):
     o = ''
     if para.has_key('sourcelines'):
-        o += write_sourcelines(doc, options, para['sourcelines'])
+        o += write_sourcelines(proc, options, para['sourcelines'])
     elif para.has_key('listlines'):
-        o += write_listlines(doc, options, para['listlines'], toc)
+        o += write_listlines(proc, options, para['listlines'], toc)
     elif para.has_key('textlines'):
-        o += write_textlines(doc, options, para['textlines'])
+        o += write_textlines(proc, options, para['textlines'])
     elif para.has_key('diagramlines'):
-        o += write_diagramlines(doc, options, para['diagramlines'])
+        o += write_diagramlines(proc, options, para['diagramlines'])
     return o
 
-def write_html_section(doc, options, section):
+def write_html_section(proc, options, section):
     o = ''
-    o += '<a name="' + get_header_link(section['title']['string']) + '"></a>'
+    o += '<a name="' + zerodoc.utils.get_anchor(section['title']['string']) + '"></a>'
     o += '<h' + str(section['level'] + 2) 
     o += '>' + section['title']['string'] + '</h'
     o += str(section['level'] + 2) + '>'
     for para in section['paragraphs']:
-        o += write_html_paragraph(doc, options, para)
+        o += write_html_paragraph(proc, options, para)
     return o
 
 def write(doc, options = ['ditaa', 'datauri']):
     '''
     Output the HTML 2.0 rendering of a doc tree
     '''
+    proc = zerodoc.utils.Processor(doc, '<a href="{1}">{0}</a>', cgi.escape)
     o = ''
     if not 'noheaders' in options:
         o += '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 Strict//EN">\n'
@@ -166,20 +146,20 @@ def write(doc, options = ['ditaa', 'datauri']):
         o += '<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" >'
         o += '<title>\n'
         for titleline in doc['header']['title']['textlines']:
-            o += process_attributes(doc, titleline) + '\n'
+            o += proc.process(titleline) + '\n'
         o += '</title>\n'
         o += '<body>\n'
     o += '<h1>\n'
     for titleline in doc['header']['title']['textlines']:
-        o += process_attributes(doc, titleline) + '\n'
+        o += proc.process(titleline) + '\n'
     o += '</h1>\n'
     # o += '<h2>Abstract</h2>'
     for para in doc['header']['abstract']['abstract']:
-       o += write_html_paragraph(doc, options, para)
+       o += write_html_paragraph(proc, options, para)
     # o += '<h2>Table of contents</h2>'
-    o += write_html_paragraph(doc, options, doc['header']['toc'], toc=True)
+    o += write_html_paragraph(proc, options, doc['header']['toc'], toc=True)
     for section in doc['body']['sections']:
-        o += write_html_section(doc, options, section) 
+        o += write_html_section(proc, options, section) 
     if not 'noheaders' in options:
         o += '</body>'
         o += '</html>'

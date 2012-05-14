@@ -20,55 +20,49 @@
 import os
 import cgi
 import base64
-import hashlib
 import tempfile
 import zerodoc.diagram
+import zerodoc.utils
 
-def get_header_link(s):
-    h = hashlib.new('ripemd160')
-    h.update(s.lower())
-    return h.hexdigest()[:8]
-
-def write_listlines(options, listlines, toc):
+def write_listlines(proc, options, listlines, toc):
     lastlevel = 0
     o = ''
     for uline in listlines:
         s = '*'
-        for i in range(uline['listline']['level']):
+        for i in range(uline['level']):
             s += '*'
         if toc:
-            s += ' ' + uline['listline']['string'] + '\n'
+            s += ' [' + proc.process(uline) + '|#' +\
+                zerodoc.utils.get_anchor(uline['string']) + ']\n'
         else:
-            s += ' ' + uline['listline']['string'] + '\n'
+            s += ' ' + proc.process(uline) + '\n'
         o += s
     return o
 
-def write_sourcelines(options, sourcelines):
+def write_sourcelines(proc, options, sourcelines):
     o = '{code:none}\n'
     for sline in sourcelines:
-        if 'sourceline' in sline:
-            o += sline['sourceline'] + '\n'
-        elif 'textline' in sline:
-            o += sline['textline'] + '\n'
+        if 'string' in sline:
+            o += proc.process(sline) + '\n'
         else:
             print 'unknown element in sourcelines ' + str(sline) + ' ' + str(sline.keys())
     o += '{code}\n'
     return o
 
-def write_textlines(options, textlines):
+def write_textlines(proc, options, textlines):
     o = '\n'
     for t in textlines:
-        o += t['textline'] + ' '
+        o += proc.process(t) + ' '
     o += '\n'
     return o
 
-def write_diagramlines(options, diagramlines):
+def write_diagramlines(proc, options, diagramlines):
     dlines = []
     if 'rawdiagrams' in options:
         return write_sourcelines(options, diagramlines)
     for sline in diagramlines:
-        if 'sourceline' in sline:
-            dlines.append(sline['sourceline'])
+        if 'string' in sline:
+            dlines.append(proc.process(sline))
         else:
             print 'unknown element in sourcelines (diagram)' + str(sline) +\
             ' ' + str(sline.keys())
@@ -92,40 +86,43 @@ def write_diagramlines(options, diagramlines):
     return t
 
  
-def write_confluence_paragraph(options, para, toc = False):
+def write_confluence_paragraph(proc, options, para, toc = False):
     o = ''
     if para.has_key('sourcelines'):
-        o += write_sourcelines(options, para['sourcelines'])
+        o += write_sourcelines(proc, options, para['sourcelines'])
     elif para.has_key('listlines'):
-        o += write_listlines(options, para['listlines'], toc)
+        o += write_listlines(proc, options, para['listlines'], toc)
     elif para.has_key('textlines'):
-        o += write_textlines(options, para['textlines'])
+        o += write_textlines(proc, options, para['textlines'])
     elif para.has_key('diagramlines'):
-        o += write_diagramlines(options, para['diagramlines'])
+        o += write_diagramlines(proc, options, para['diagramlines'])
     return o
 
-def write_confluence_section(options, section):
-    o = ''
+def write_confluence_section(proc, options, section):
+    o = '\n'
+    o += '{anchor:' + zerodoc.utils.get_anchor(section['title']['string']) +'}\n'
     o += 'h' + str(section['level'] + 1) + '. '
-    o += section['title']['textline'] + '\n'
+    o += section['title']['string'] + '\n'
     for para in section['paragraphs']:
-        o += write_confluence_paragraph(options, para)
+        o += write_confluence_paragraph(proc, options, para)
     return o
 
 def write(doc, options = ['ditaa', 'datauri']):
     '''
     Output the confluence wiki rendering of a doc tree
     '''
+    proc = zerodoc.utils.Processor(doc, '[{0}|{1}]')
     o = ''
     # todo put title in post
     o += 'h1. '
     for titleline in doc['header']['title']['textlines']:
-        o += titleline['textline'] + ' '
+        o += proc.process(titleline) + ' '
+    o += '\n'
     for para in doc['header']['abstract']['abstract']:
-       o += write_confluence_paragraph(options, para)
+       o += write_confluence_paragraph(proc, options, para)
     # o += '<h2>Table of contents</h2>'
-    o += write_confluence_paragraph(options, doc['header']['toc'], toc=True)
+    o += write_confluence_paragraph(proc, options, doc['header']['toc'], toc=True)
     for section in doc['body']['sections']:
-        o += write_confluence_section(options, section) 
+        o += write_confluence_section(proc, options, section) 
     return o
 
