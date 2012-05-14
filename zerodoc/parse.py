@@ -97,13 +97,13 @@ def in_toclist(s, d):
     level = None
     toc_list = d['header']['toc']
     for e in toc_list['listlines']:
-        if e['listline']['string'].lower() == s.lower():
+        if e['string'].lower() == s.lower():
             if found != None:
-                print 'ERROR: The element ' + e['listline'] + 'in TOC is duplicated!'
+                print 'ERROR: The element ' + e['string'] + 'in TOC is duplicated!'
                 sys.exit(1)
             else:
-                found = e['listline']['string']
-                level = e['listline']['level']
+                found = e['string']
+                level = e['level']
     return found, level
 
 def p_paragraph(p):
@@ -121,28 +121,32 @@ def p_paragraph(p):
 
 def extract_links(x):
     """Extract links/references from a line. Returns a dictionary
-    of {'links':[[keyword,pos,link],...,[keyword,pos,link]],
+    of {'links':{'keyword': link,...,'keyword': link},
     'references':[[keyword,pos],...,[keyword,pos]],
     'modified_string': s }
 
     The modified string will not have nor links or references
-    on it, and the positions in the array of links/references
-    for both are relative to this modified string, not to the
+    on it, and the positions in the array of references
+    for are relative to this modified string, not to the
     original one
-    
+
     >>> extract_links('text line `name`:http://pepe.com continue')
-    {'modified_string': 'text line  continue', 'references': [],\
- 'links': [['name', 10, 'http://pepe.com']]}
+    {'modified_string': 'text line  continue', 'references': [['name', 10]],\
+ 'links': {'name': 'http://pepe.com'}}
 
     >>> extract_links('text line `reference1` and `reference2`')
     {'modified_string': 'text line  and ', 'references':\
- [['reference1', 10], ['reference2', 15]], 'links': []}
+ [['reference1', 10], ['reference2', 15]], 'links': {}}
+
+    >>> extract_links('text line with no links whatsoever')
+    {'modified_string': 'text line with no links whatsoever',\
+ 'references': [], 'links': {}}
 
     """
     modified_string = ''
     offset = 0
     references = []
-    links = []
+    links = {}
     while True:
         s = x[offset:]
         local_modified_string = ''
@@ -173,7 +177,8 @@ def extract_links(x):
             offset += second+first+third+3
             ref = s[first+1:second+first+1]
             link = s[second+first+3:second+first+third+3]
-            links.append([ref, pos, link])
+            references.append([ref, pos])
+            links[ref] = link
         modified_string += local_modified_string
     return {'links': links, 'references':references,
             'modified_string': modified_string }
@@ -225,7 +230,7 @@ def p_sourcelines(p):
                    | firstsource 
                    | sourcelines NEWLINE sourceline
                    | sourcelines NEWLINE firstsource'''
-    p[0] = insert_source_diagram_vector(p, 'sourcelines', 'sourceline')
+    p[0] = insert_source_diagram_vector(p, 'sourcelines', 'string')
 
 def p_diagramlines(p):
     '''diagramlines : diagramlines sourceline
@@ -235,7 +240,7 @@ def p_diagramlines(p):
                     | firstdiagram
                     | diagramlines NEWLINE sourceline
                     | diagramlines NEWLINE firstdiagram'''
-    p[0] = insert_source_diagram_vector(p, 'diagramlines', 'diagramline')
+    p[0] = insert_source_diagram_vector(p, 'diagramlines', 'string')
 
 def p_textlines(p):
     '''textlines : textlines textline
@@ -245,20 +250,20 @@ def p_textlines(p):
 def p_firstsource(p):
     '''firstsource : FIRSTSOURCE NEWLINE
                    | TEXTLIST NEWLINE'''
-    p[0] = { 'sourceline': p[1] } 
+    p[0] = { 'string': p[1] } 
 
 def p_firstdiagram(p):
     '''firstdiagram : FIRSTDIAGRAM NEWLINE'''
-    p[0] = { 'sourceline': p[1] } 
+    p[0] = { 'string': p[1] } 
 
 def p_sourceline(p):
     '''sourceline : SOURCE NEWLINE
                   | TEXTLIST NEWLINE'''
-    p[0] = { 'sourceline': p[1]} 
+    p[0] = { 'string': p[1]} 
 
 def p_textline(p):
     '''textline : TEXT NEWLINE'''
-    p[0] = { 'textline': p[1] }
+    p[0] = { 'string': p[1] }
 
 def firstnospace (s):
     n = 0
@@ -273,14 +278,14 @@ def p_listline(p):
     '''listline : TEXTLIST NEWLINE'''
     # The number of spaces determines the indentation
     level = p[1].count(' ', 0, p[1].find('-'))
-    p[0] = { 'listline': { 'level': level , 'string': p[1][(level + 2):] }}
+    p[0] = { 'level': level , 'string': p[1][(level + 2):] }
 
 # the firstlistline is special because it determines wether the block
 # is a list paragraph or not
 # Todo: allow for various lines
 def p_firstlist(p):
     '''firstlist : FIRSTLIST NEWLINE'''
-    p[0] = { 'listline': { 'level': 0 , 'string': p[1][2:] }}
+    p[0] = { 'level': 0 , 'string': p[1][2:] }
 
 def p_title(p):
     'title : textlines NEWLINE'
@@ -331,11 +336,11 @@ def adjust_sections(doc):
             continue
         if len(para['textlines']) != 1:
             continue
-        title_candidate = para['textlines'][0]['textline']
+        title_candidate = para['textlines'][0]['string']
         toc_string, level = in_toclist(title_candidate, doc)
         if toc_string == None:
             continue
-        para['textlines'][0]['textline'] = toc_string
+        para['textlines'][0]['string'] = toc_string
         if last == -1:
             last = i
             lastlevel = level
@@ -418,6 +423,52 @@ def preprocess(s):
     o += '\n\n'
     return o, None
 
+def extract_links_lines(links, lines):
+    ''' Extract links from a group of lines. If the group
+        of lines only have links True is returned along with
+        the modified array
+    '''
+    n = []
+    links_only = True
+    for l in lines:
+        r = extract_links(l['string'])
+        if r['links'] != {}:
+            links.update(r['links'])
+        else:
+            links_only = False
+        if r['references'] != []:
+            l['string'] = r['modified_string']
+            if l['string'] != '':
+                links_only = False
+            l['references'] = r['references']
+        n.append(l)
+    return n, links_only
+
+def extract_links_paragraph(links, para):
+    '''
+    extract links from listlines and textlines paragraphs only
+    (no source/diagrams etc)
+    '''
+    if para.has_key('listlines'):
+        para['listlines'], o = extract_links_lines(links, para['listlines'])
+        if o == True:
+            del para['listlines']
+    elif para.has_key('textlines'):
+        para['textlines'], o = extract_links_lines(links, para['textlines'])
+
+def process_links(doc):
+    links = {}
+    ''' Extract links from source and put them in their tree '''
+    for para in doc['header']['abstract']['abstract']:
+        extract_links_paragraph(links, para)
+    for section in doc['body']['sections']:
+        for para in section['paragraphs']:
+            extract_links_paragraph(links, para)
+    doc['links'] = links
+
+def extract_attributes(doc):
+    pass
+
 def parse(s):
     ''' Return the syntax tree for a preloaded string '''
     l = lex.lex(optimize=1, debug=0)
@@ -427,8 +478,12 @@ def parse(s):
         print 'ERROR: ' + e
         return None
     doc = yacc.parse(p)
+    # First, adjust 'named' sections from the template
     adjust_sections(doc)
-
+    # Extract links from source and put them in their tree
+    process_links(doc)
+    # Identify text attributes
+    extract_attributes(doc)
     # Parsetab by default is generated on the current directory
     # This is not desirable at all (the directory can be read-only
     # and a program should not write spureous files on its cwd)

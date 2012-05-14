@@ -148,6 +148,35 @@ Renders into:
 
 1.4 Links
 
+Links can be included directly in the text along with their destination,
+or referenced first in the text and then 'resolved' in another line.
+
+Source of a link:
+
+ This `link`:http://www.google.com will redirect to google
+
+Will render as:
+
+This `link`:http://www.google.com will redirect to google
+
+Referenced links are 'resolved' in lists of links. This lists of links
+will be removed from output directly. If the list is contained in a
+section alone, the section is also removed from output. See the
+'References' section at the end of the source code of this document
+for an example. An 'autocontained' example could be:
+
+ This line contains two referenced links: `firstlink` and `secondlink`
+
+ - `firstlink`:http://www.google.com
+ - `secondlink`:http://www.google.com
+
+Wich renders into:
+
+This line contains two referenced links: `firstlink` and `secondlink`
+
+- `firstlink`:http://www.google.com
+- `secondlink`:http://www.google.com
+
 1.5 Source code
 
 Source code is text that will be included verbatim in the output. In
@@ -192,8 +221,10 @@ sorrounding it:
 Diagrams can be either included directly in the output, just as
 source code, or optionally converted to images (when this is
 possible, for example in a manual page it does not make sense to
-include images). Diagrams are converted using ditaa. Refer to
-the `aafigure manual page` for help.
+include images). Diagrams are converted using ditaa or aafigure,
+depending on the options parsed to the renderer. Refer to the
+`aafigure manual page` or to the `ditaa website` for help on this
+formats.
 
 Diagrams are recognized by using TWO or more spaces before the
 first line of them. Anything up to the next 'regular' paragraph
@@ -344,6 +375,21 @@ other formats
 
 SYNOPSIS
 
+ Usage: zerodoc [options]
+
+ Options:
+  -h, --help            show this help message and exit
+  -f FORMAT, --format=FORMAT
+                        Output format. If ommited, 'html'
+  -o OPTIONS, --options=OPTIONS
+                        Options for format renderer
+  -i FILE, --input=FILE
+                        Use <filename> as input file. If ommited, use
+                        stdin.
+  -O FILE, --output=FILE
+                        Use <filename> as output file. If ommited,use
+                        stdout.
+
 HTML output options
 
 JSON output options
@@ -370,16 +416,22 @@ Manpage generator options
 
 6. Zerodoc internals
 
+Zerodoc is organized around a lexic and syntactic parser built with
+PLY (Lexx & Yacc for python) that builds an abstract tree of python
+arrays and dictionaries representing the document, and several
+'renderers' that walk this tree and produce the needed output.
+
 6.1 The PLY parser
 
 6.2 "Adjusted" sections
 
+Not everything can be expressed with BNF rules, and some 'adjustement'
+for the tree is done afterwards.
+
 6.3 Extending zerodoc
 
-7. References
-
-This section will not appear in renditions, is a way to keep
-hiperlinks out of the text:
+To add a new renderer, for example, it must be included into the
+zerodoc/ subdirectory
 
 - `git`:http://git-scm.com/
 - `POD`:http://search.cpan.org/dist/perl/pod/perlpod.pod
@@ -392,4 +444,3 @@ hiperlinks out of the text:
 - `rdoc`:http://rdoc.sourceforge.net/
 - `textile`:http://www.textism.com/tools/textile/index.php
 - `aafigure manual page`:http://packages.python.org/aafigure/manual.html
-
