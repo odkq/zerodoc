@@ -392,11 +392,34 @@ SYNOPSIS
 
 HTML output options
 
+ ditaa                  Use ditaa to format diagrams. When this option
+                        is used, you can specify the path of the ditaa
+                        .jar file with jarpath:<path>
+ jarpath:<path>         Location of the .jar path (defaults on
+                        /usr/lib/zerodoc/ditaa0_9.jar)
+ aafigure               Use aafigure to format diagrams
+ datauri                Do not generate image files, embbed the images
+                        directly in the HTML using
+
 JSON output options
 
-Markdown output options
+Json output has no options. It's output is the json render of the
+parsed tree with no interpretation whatsoever
+
+Confluence output options
+
+ ditaa, jarpath, aafigure, datauri -> With the same meaning as in the
+                        HTML output options
+
+ folder:<folder>        Folder (path) for the uploaded document
+ user:<user>		User to use
+ passwd:<passd>		Password
+ host:<host>		Host
 
 Manpage generator options
+
+ Manpages can be made for the whole document or only for a certain part
+ of it
 
 4. Using the parser
 

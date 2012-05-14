@@ -119,6 +119,16 @@ def p_paragraph(p):
         # print 'p_paragraph(): [' + str(p[1]['listlines']) + ']'
     p[0] = p[1]
 
+def extract_attributes(x):
+    """
+    Extract attributes (bold, underline, quote) from text
+    >>> extract_attributes("this is *bold*, this is _underline_,\
+ this 'quote'")
+    {'modified_string': 'this is bold, this is underline, this quote',\
+ 'bold':[[8,11]], 'underline':[[23,31]], 'quote': [[39,43]]}
+    """
+    pass
+
 def extract_links(x):
     """Extract links/references from a line. Returns a dictionary
     of {'links':{'keyword': link,...,'keyword': link},
