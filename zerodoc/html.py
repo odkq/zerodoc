@@ -77,7 +77,7 @@ def write_sourcelines(proc, options, sourcelines):
 def write_textlines(proc, options, textlines):
     o = '<p>\n'
     for t in textlines:
-        o += proc.process(t)
+        o += proc.process(t) + '\n'
     o += '</p>\n'
     return o
 
