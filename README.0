@@ -217,7 +217,7 @@ sorrounding it:
  Source code is identified by one space before the content of
  the first line and one or more spaces in the rest. No tabs can
 
-1.6 Diagrams
+1.6 Diagrams, plots and images
 
 Diagrams can be either included directly in the output, just as
 source code, or optionally converted to images (when this is
@@ -264,6 +264,12 @@ This is the source code of the following paragraph
        +-------------------------+
 
 Note that there are two spaces before the first +---
+
+The diagrams can be preceded by a tag stating what the
+program to convert them to graphics will be used. ditaa and
+aafigure are formats 'ascii-art-alike'. To plot data, and
+mathematic functions, gnuplot can be used, and to plot complex
+graphics programatically, tikz, pgf and graphviz can be used.
 
 1.7 Definition lists
 
@@ -440,6 +446,11 @@ jarpath:<path>
 
 aafigure
    Use aafigure to format diagrams
+
+svg
+   Prefer svg in output when applicable (when the 
+   converter outputs it and when the rendered format allows
+   for scalable graphics)
 
 datauri
    Do not generate image files, embbed the images

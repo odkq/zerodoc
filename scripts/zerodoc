@@ -53,7 +53,7 @@ if __name__=="__main__":
     parser = optparse.OptionParser()
     parser.add_option("-f", "--format", dest="format", default="html",
                       help="Output format. If ommited, 'html'")
-    parser.add_option("-o", "--options", dest="options",
+    parser.add_option("-o", "--options", dest="options", default="ditaa datauri",
                       help="Options for format renderer")
     parser.add_option("-i", "--input", dest="input", default="stdin",
                       help="Use <filename> as input file. If ommited, use stdin.", metavar="FILE")
