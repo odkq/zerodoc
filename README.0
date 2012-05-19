@@ -1,6 +1,6 @@
 zerodoc
 
-Version 0.0.1. Last updated 2012-04-14 pablo@odkq.com
+Version 0.0.1. Last updated 2012-05-19 pablo.martin@acm.org
 
 Zerodoc is a "plain text format" in the spirit of `asciidoc`, `POD` 
 or `markdown`, with an emphasis on simplicity and extensibility.
@@ -28,12 +28,13 @@ Table of contents
  - 1.4 Links
  - 1.5 Source code
  - 1.6 Diagrams
- - 1.7 The default zerodoc template
-  - 1.7.1 Header
-   - 1.7.1.1 Title
-   - 1.7.1.2 Abstract
-   - 1.7.1.3 Table of contents
-  - 1.7.2 Body
+ - 1.7 Definition lists
+ - 1.8 The default zerodoc template
+  - 1.8.1 Header
+   - 1.8.1.1 Title
+   - 1.8.1.2 Abstract
+   - 1.8.1.3 Table of contents
+  - 1.8.2 Body
 - 2. Installing zerodoc
  - 2.1 Prerrequisites
  - 2.2 Installing the library and interpreter
@@ -264,9 +265,35 @@ This is the source code of the following paragraph
 
 Note that there are two spaces before the first +---
 
-1.7 The default zerodoc template
+1.7 Definition lists
 
-1.7.1 Header
+A definition list is a list of terms and corresponding definitions.
+It usually renders (in HTML, man pages, ReST) in the text of the
+definition indented with respect to the title. It is useful for
+documenting functions and command line parameters.
+
+Following is an example:
+
+ man ls
+     Display the manual page for the item (program) ls.
+ man -a intro
+     Display,  in  succession, all of the available intro manual
+     pages contained within the manual.  It is possible
+     to quit between successive displays or skip any of them.
+
+that renders into:
+
+man ls
+    Display the manual page for the item (program) ls.
+
+man -a intro
+    Display,  in  succession, all of the available intro manual
+    pages contained within the manual.  It is possible
+    to quit between successive displays or skip any of them.
+
+1.8 The default zerodoc template
+
+1.8.1 Header
 
 The header in a zerodoc document contains the title, an optional
 abstract and a table of contents. The table of contents needs to
@@ -282,7 +309,7 @@ formats but allow zerodoc to have free-form titles (no --- nor
  1. Title 1
  2. Title 2
 
-1.7.1.1 Title
+1.8.1.1 Title
 
 The title can spawn several lines (a whole paragraph) that will be
 joined together on output
@@ -291,12 +318,12 @@ The table of contents can be prefixed by a 'Table of conents' line
 that will be recognized automatically as the TOC title. If that line
 is not present, it will also be ommited on the transformed output.
 
-1.7.1.2 Abstract
+1.8.1.2 Abstract
 
 The abstract is a group of paragraphs that appear before the Table
 of content.
 
-1.7.1.3 Table of contents
+1.8.1.3 Table of contents
 
 The table of contents is a list of the titles of the different
 sections, for example
@@ -309,7 +336,7 @@ Will define the table of contents of a document, if found in the
 header (after the abstract). If a title listed here is not found
 in the document, an error is yielded.
 
-1.7.2 Body
+1.8.2 Body
 
 The body is formed by several paragraphs. Paragraphs are divided
 into sections by lines with titles. The lines with titles should
@@ -326,8 +353,9 @@ starts with
 
 And in the TOC the pertinent lines appear as:
 
-    - 1.7.1.3 Table of contents
-   - 1.7.2 Body
+ -- toc fragment --
+   - 1.7.1.3 Table of contents
+  - 1.7.2 Body
  - 2. Installing zerodoc
   - 2.1 Prerrequisites
 
@@ -375,31 +403,47 @@ other formats
 
 SYNOPSIS
 
- Usage: zerodoc [options]
+Usage: zerodoc [options]
 
- Options:
-  -h, --help            show this help message and exit
-  -f FORMAT, --format=FORMAT
-                        Output format. If ommited, 'html'
-  -o OPTIONS, --options=OPTIONS
-                        Options for format renderer
-  -i FILE, --input=FILE
-                        Use <filename> as input file. If ommited, use
-                        stdin.
-  -O FILE, --output=FILE
-                        Use <filename> as output file. If ommited,use
-                        stdout.
+Options:
+
+h, --help
+    show this help message and exit
+
+f FORMAT, --format=FORMAT
+    Output format. If ommited, 'html'
+
+o OPTIONS, --options=OPTIONS
+    Options for format renderer
+
+i FILE, --input=FILE
+    Use <filename> as input file. If ommited, use
+    stdin.
+
+O FILE, --output=FILE
+    Use <filename> as output file. If ommited,use
+    stdout.
 
 HTML output options
 
- ditaa                  Use ditaa to format diagrams. When this option
-                        is used, you can specify the path of the ditaa
-                        .jar file with jarpath:<path>
- jarpath:<path>         Location of the .jar path (defaults on
-                        /usr/lib/zerodoc/ditaa0_9.jar)
- aafigure               Use aafigure to format diagrams
- datauri                Do not generate image files, embbed the images
-                        directly in the HTML using
+ditaa
+    Use ditaa to format diagrams. When this option
+    is used, you can specify the path of the ditaa
+    .jar file with jarpath:<path>. If jarpath is
+    ommited, 'ditta' will be called (you can install
+    a command-line ditta wraper in Debian and others
+    with apt-get install ditaa)
+
+jarpath:<path>
+    Location of the .jar path (there is no default,
+    'java' must be in the $PATH)
+
+aafigure
+   Use aafigure to format diagrams
+
+datauri
+   Do not generate image files, embbed the images
+   directly in the HTML using
 
 JSON output options
 
@@ -408,18 +452,29 @@ parsed tree with no interpretation whatsoever
 
 Confluence output options
 
- ditaa, jarpath, aafigure, datauri -> With the same meaning as in the
-                        HTML output options
+ditaa, jarpath, aafigure, datauri
+    With the same meaning as in the HTML output options
 
- folder:<folder>        Folder (path) for the uploaded document
- user:<user>		User to use
- passwd:<passd>		Password
- host:<host>		Host
+You can specify an output file, and paste it by hand into
+the confluence 'edition' formulary, or you can make zerodoc client
+upload it directly with this options:
+
+folder:<folder>
+    Folder (path) for the uploaded document
+
+user:<user>
+    User to use
+
+passwd:<passd>
+    Password
+
+host:<host>
+    Host
 
 Manpage generator options
 
- Manpages can be made for the whole document or only for a certain part
- of it
+Manpages can be made for the whole document or only for a
+certain part of it (Not yet documented)
 
 4. Using the parser
 

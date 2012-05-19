@@ -40,7 +40,10 @@ def extract_option(options, key):
 
 def generate_diagram_ditaa(path, options):
     jarpath = extract_option(options, 'jarpath')
-    r = ['java', '-jar', jarpath, path ]
+    if jarpath == None:
+        r = ['ditaa', path ]
+    else:
+        r = ['java', '-jar', jarpath, path ]
     p = subprocess.Popen(r, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     o = p.communicate()[0]
     i = o.find('Rendering to file: ')

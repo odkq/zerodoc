@@ -74,6 +74,17 @@ def write_sourcelines(proc, options, sourcelines):
     o += '</pre>\n'
     return o
 
+def write_deflist(proc, options, deflist):
+    o = '<dl>'
+    o += '<dt>'
+    for t in deflist['term']['textlines']:
+        o += proc.process(t) + '\n'
+    o += '<dd>'
+    for t in deflist['definition']['textlines']:
+        o += proc.process(t) + '\n'
+    o += '</dl>'
+    return o
+
 def write_textlines(proc, options, textlines):
     o = '<p>\n'
     for t in textlines:
@@ -121,6 +132,8 @@ def write_html_paragraph(proc, options, para, toc = False):
         o += write_textlines(proc, options, para['textlines'])
     elif para.has_key('diagramlines'):
         o += write_diagramlines(proc, options, para['diagramlines'])
+    elif para.has_key('deflist'):
+        o += write_deflist(proc, options, para['deflist'])
     return o
 
 def write_html_section(proc, options, section):

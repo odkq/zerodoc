@@ -29,10 +29,8 @@ import sys
 import ply.lex as lex
 import ply.yacc as yacc
 
-# For the time being ...
-DEBUG=True
-
-tokens = ( 'SOURCE', 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' , 'FIRSTDIAGRAM', 'NEWLINE')
+tokens = ( 'SOURCE', 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' ,
+        'FIRSTDIAGRAM', 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
 t_TEXTLIST=r'[\ ]+-[^\n]+'
@@ -40,10 +38,6 @@ t_FIRSTLIST=r'-[^\n]+'
 t_SOURCE=r'[^-\n][^\n]*'
 t_FIRSTSOURCE=r'\ [^-\n\ ][^\n]*'
 t_FIRSTDIAGRAM=r'\ [\ ]+[^-\n\ ][^\n]*'
-
-# precedence = (
-#    ('left', 'FIRSTTEXTLIST', 'TEXTLIST'),
-# )
 
 start = 'document'
 
@@ -59,7 +53,6 @@ def t_NEWLINE(t):
 def t_error(t):
     print "Illegal character '%s'" % t.value[0]
     return False
-
 
 def test(lexer,data):
     lexer.input(data)
@@ -111,6 +104,7 @@ def p_paragraph(p):
                  | sourcelines NEWLINE
                  | listlines NEWLINE
                  | diagramlines NEWLINE
+                 | deflist NEWLINE
     '''
     # A paragraph made from listlines can be a list of
     # links
@@ -255,6 +249,15 @@ def p_diagramlines(p):
 def p_textlines(p):
     '''textlines : textlines textline
                  | textline'''
+    append_or_create('textlines', p)
+
+def p_deflist(p):
+    ''' deflist : textline deflines '''
+    p[0] = { 'deflist': { 'term': { 'textlines': [p[1]]}, 'definition': p[2] } }
+
+def p_deflistline(p):
+    '''deflines : deflines firstdiagram
+                 | firstdiagram'''
     append_or_create('textlines', p)
 
 def p_firstsource(p):
