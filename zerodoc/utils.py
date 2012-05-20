@@ -58,7 +58,10 @@ class Processor():
                 j = reference[1] - l
                 if j > 0:
                     s += self.escape_function(a[:j])
-                s += self.format_string.format(reference[0], self.doc['links'][reference[0]])
+                try:
+                    s += self.format_string.format(reference[0], self.doc['links'][reference[0]])
+                except KeyError:
+                    return self.escape_function(line['string'])
                 a = a[j:]
                 l = reference[1]
             if a != '':
