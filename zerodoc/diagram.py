@@ -91,10 +91,11 @@ def generate_diagram_tikz(path, options):
 
     dpis = extract_option(options,'dpis')
     if dpis == None:
-        dpis = '300'
+        dpis = '150'
     os.chdir('/tmp')
     try:
-        subprocess.check_call(['pdflatex', texfile ])
+        subprocess.check_call(['pdflatex', texfile ], stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE)
         subprocess.check_call(['pdftops', '-eps', pdffile ])
         subprocess.check_call(['convert', '-density', dpis, psfile, pngfile ])
     except CalledProcessError:
@@ -119,13 +120,12 @@ def detect_diagram_type(path):
         for k in types.keys():
             for kw in types[k]:
                 if l.find(kw) != -1:
-                    print k + 'diagram detected bro'
                     return k
     return 'unknown'
 
-# get_diagram_ditaa:
+# get_diagram:
 # Return the diagram bitmap in a buffer
-def get_diagram_ditaa(options, lines):
+def get_diagram(options, lines):
     f = tempfile.NamedTemporaryFile(delete=False)
     for line in lines:
         f.write(line + '\n')

@@ -1,0 +1,72 @@
+Example zerodoc document
+
+This is an example zerodoc document. See `it's source code` to
+learn by example.
+
+This first two paragraphs are the 'abstract'
+
+- 1. Text format
+- 2. Diagrams
+- 3. Links
+
+1. TEXT FORMAT
+
+Text is organized into paragraphs. No line can exceed 72 chars in
+regular text.
+
+- List items
+ - Can be defined
+ - and nested
+- this way. You can have serveral lines for
+  a single list item, as long as they are
+  indented properly
+
+deflist
+    definition for keyword. It can spawn several lines
+    on itself
+
+ int main(void)
+ {
+        printf('Hello, world, this is source code\n');
+ }
+
+2. DIAGRAMS
+
+You can draw diagrams using three different tools by default
+in zerodoc:
+
+Ditaa diagrams:
+
+  +---------------+                +--------------------+
+  |               |                |                    |
+  | ditaa diagram +----------------+                    |
+  |               |                |                {d} |
+  +---------------+                +--------------------+
+
+tikz diagrams:
+
+  \begin{tikzpicture}[scale=1.5]
+    \draw [<->,thick] (0,2) node (yaxis) [above] {$y$}
+        |- (3,0) node (xaxis) [right] {$x$};
+    \draw (0,0) coordinate (a_1) -- (2,1.8) coordinate (a_2);
+    \draw (0,1.5) coordinate (b_1) -- (2.5,0) coordinate (b_2);
+    \coordinate (c) at (intersection of a_1--a_2 and b_1--b_2);
+    \draw[dashed] (yaxis |- c) node[left] {$y'$}
+        -| (xaxis -| c) node[below] {$x'$};
+    \fill[red] (c) circle (2pt);
+  \end{tikzpicture}
+
+gnuplot:
+
+  (not really yet)
+
+3. LINKS
+
+`Links` are defined as references wich are resolved later
+or `directly`:http://www.google.com in the text. `Zerodoc`
+showcase stops here
+
+- `Links`:http://en.wikipedia.org/wiki/Link
+- `Zerodoc`:http://odkq.com/zerodoc
+- `it's source code`:example.0
+

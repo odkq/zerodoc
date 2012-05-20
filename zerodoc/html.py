@@ -102,7 +102,7 @@ def write_diagramlines(proc, options, diagramlines):
         else:
             print 'unknown element in sourcelines (diagram)' + str(sline) +\
             ' ' + str(sline.keys())
-    img = zerodoc.diagram.get_diagram_ditaa(options, dlines)
+    img = zerodoc.diagram.get_diagram(options, dlines)
     if img == None:
         return ''
     if not 'datauri' in options:

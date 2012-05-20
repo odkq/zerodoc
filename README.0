@@ -257,12 +257,6 @@ This is the source code of the following paragraph
 
 Note that there are two spaces before the first +---
 
-The diagrams can be preceded by a tag stating what the
-program to convert them to graphics will be used. ditaa and
-aafigure are formats 'ascii-art-alike'. To plot data, and
-mathematic functions, gnuplot can be used, and to plot complex
-graphics programatically, tikz can be used:
-
 1.6.2 TIKZ DIAGRAMS
 
 A Tikz diagram (from the Tikz examples)
@@ -318,6 +312,14 @@ Source code for that Tikz chunk:
  \end{tikzpicture}
 
 1.6.3 GNUPLOT
+
+1.6.4 Diagram tagging and autodetection
+
+As with source code, the type of diagram is autodetected for Tikz and
+gnuplot diagrams. This detection can be overriden by specifing it in
+the first line of the diagram, between parenthesis. For example, to
+render a 
+Diagram tagging and autodetection
 
 1.7 Definition lists
 
@@ -511,7 +513,7 @@ svg
 
 datauri
    Do not generate image files, embbed the images
-   directly in the HTML using
+   directly in the HTML using `DataURIscheme`
 
 JSON OUTPUT OPTIONS
 
@@ -544,6 +546,7 @@ MANPAGE GENERATOR OPTIONS
 Manpages can be made for the whole document or only for a
 certain part of it (Not yet documented)
 
+- `DataURIscheme`:http://en.wikipedia.org/wiki/Data_URI_scheme
 - `git`:http://git-scm.com/
 - `POD`:http://search.cpan.org/dist/perl/pod/perlpod.pod
 - `markdown`:http://daringfireball.net/projects/markdown/
@@ -555,4 +558,5 @@ certain part of it (Not yet documented)
 - `rdoc`:http://rdoc.sourceforge.net/
 - `textile`:http://www.textism.com/tools/textile/index.php
 - `aafigure manual page`:http://packages.python.org/aafigure/manual.html
+
 
