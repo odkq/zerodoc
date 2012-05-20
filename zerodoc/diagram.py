@@ -54,7 +54,6 @@ def generate_diagram_ditaa(path, options):
     return o[i+19:i+j]
 
 def generate_diagram_aafigure(path, options):
-    jarpath = extract_option(options, '')
     # aafigure diagram -t svg -o diagram.svg
     if 'svg' in options:
         outpath = path + '.svg'
@@ -66,6 +65,64 @@ def generate_diagram_aafigure(path, options):
     o = p.communicate()[0]
     return outpath
 
+def generate_diagram_tikz(path, options):
+    texfile = path + '.tex'
+    pdffile = path + '.pdf'
+    psfile = path + '.eps'
+    pngfile = path + '.png'
+    auxfile = path + '.aux'
+    logfile = path + '.log'
+
+    t = open(texfile, 'wb')
+    s = open(path, 'r')
+    t.write('\\documentclass{article}\n')
+    t.write('\\usepackage[pdftex,active,tightpage]{preview}\n')
+    if 'border' in options:
+        t.write('\\setlength\PreviewBorder{2mm}\n')
+    t.write('\\usepackage{tikz}\n')
+    t.write('\\begin{document}\n')
+    t.write('\\begin{preview}\n')
+    t.write(s.read())
+    t.write('\\end{preview}\n\\end{document}\n')
+    t.flush()
+    os.fsync(t.fileno())
+    t.close()
+    s.close()
+
+    dpis = extract_option(options,'dpis')
+    if dpis == None:
+        dpis = '300'
+    os.chdir('/tmp')
+    try:
+        subprocess.check_call(['pdflatex', texfile ])
+        subprocess.check_call(['pdftops', '-eps', pdffile ])
+        subprocess.check_call(['convert', '-density', dpis, psfile, pngfile ])
+    except CalledProcessError:
+        print 'Error converting to tikz somehow'
+        pngfile = None
+    for file in [ pdffile, psfile, auxfile, logfile, texfile ]:
+        if os.path.exists(file):
+            os.remove(file)
+    return pngfile
+
+def generate_diagram_gnuplot(path, options):
+    return None
+
+def detect_diagram_type(path):
+    types = {
+        'tikz' : [ '\\begin{tikzpicture}' ],
+        'gnuplot' : ['plot']
+    }
+    f = open(path, 'r')
+    lines = f.readlines()
+    for l in lines:
+        for k in types.keys():
+            for kw in types[k]:
+                if l.find(kw) != -1:
+                    print k + 'diagram detected bro'
+                    return k
+    return 'unknown'
+
 # get_diagram_ditaa:
 # Return the diagram bitmap in a buffer
 def get_diagram_ditaa(options, lines):
@@ -74,13 +131,19 @@ def get_diagram_ditaa(options, lines):
         f.write(line + '\n')
     f.close()
     n = f.name
-    if 'ditaa' in options:
-        dfile = generate_diagram_ditaa(n, options)
-    elif 'aafigure' in options:
-        dfile = generate_diagram_aafigure(n, options)
-    else:
-        print 'Specify a conversor for diagrams! (ditaa or aafigure)'
-        return None
+    type = detect_diagram_type(n)
+    if type == 'unknown':
+        if 'ditaa' in options:
+            dfile = generate_diagram_ditaa(n, options)
+        elif 'aafigure' in options:
+            dfile = generate_diagram_aafigure(n, options)
+        else:
+            print 'Specify a default conversor for diagrams! (ditaa or aafigure)'
+            return None
+    elif type == 'tikz':
+        dfile = generate_diagram_tikz(n, options)
+    elif type == 'gnuplot':
+        dfile = generate_diagram_gnuplot(n, options)
     os.remove(n)
     if dfile == None:
         return None

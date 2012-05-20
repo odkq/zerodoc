@@ -29,10 +29,11 @@ import sys
 import ply.lex as lex
 import ply.yacc as yacc
 
-tokens = ( 'SOURCE', 'TEXT', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' ,
+tokens = ( 'SOURCE', 'TEXT', 'TEXT2', 'TEXTLIST', 'FIRSTLIST', 'FIRSTSOURCE' ,
         'FIRSTDIAGRAM', 'NEWLINE')
 
 t_TEXT=r'[^-\n\ ][^\n]+'
+t_TEXT2=r'[^\n\ ][^\ \n][^\n]+'
 t_TEXTLIST=r'[\ ]+-[^\n]+'
 t_FIRSTLIST=r'-[^\n]+'
 t_SOURCE=r'[^-\n][^\n]*'
@@ -275,7 +276,8 @@ def p_sourceline(p):
     p[0] = { 'string': p[1]} 
 
 def p_textline(p):
-    '''textline : TEXT NEWLINE'''
+    '''textline : TEXT NEWLINE
+                | TEXT2 NEWLINE'''
     p[0] = { 'string': p[1] }
 
 def firstnospace (s):

@@ -27,7 +27,10 @@ Table of contents
  - 1.3 Formatting attributes
  - 1.4 Links
  - 1.5 Source code
- - 1.6 Diagrams
+ - 1.6 Diagrams and images
+  - 1.6.1 Ditaa ascii-art diagrams
+  - 1.6.2 TikZ diagrams
+  - 1.6.3 Gnuplot
  - 1.7 Definition lists
  - 1.8 The default zerodoc template
   - 1.8.1 Header
@@ -45,21 +48,8 @@ Table of contents
  - SYNOPSIS
  - HTML output options
  - JSON output options
- - Markdown output options
+ - Confluence output options
  - Manpage generator options
-- 4. Using the parser
- - 4.1 Example parsed tree
- - 4.2 Example generator: HTML
-- 5. Defining templates
- - 5.1 Templates file format
- - 5.2 Command line converter
- - 5.3 Feeding the library
- - 5.4 Example: git hook
-- 6. Zerodoc internals
- - 6.1 The PLY parser
- - 6.2 "Adjusted" sections
- - 6.3 Extending zerodoc
-- 7. References
 
 1. THE ZERODOC FORMAT
 
@@ -217,7 +207,7 @@ sorrounding it:
  Source code is identified by one space before the content of
  the first line and one or more spaces in the rest. No tabs can
 
-1.6 Diagrams, plots and images
+1.6 DIAGRAMS AND IMAGES
 
 Diagrams can be either included directly in the output, just as
 source code, or optionally converted to images (when this is
@@ -236,6 +226,8 @@ a 'regular' text paragraph (starting on the first column) between
 them. This makes sense since no diagram can follow source code or
 viceversa without at least an introduction of what the reader is
 seeing.
+
+1.6.1 DITAA ASCII-ART DIAGRAMS
 
  This is the source code of the following paragraph
  (diagram taken from the `ditaa website`:
@@ -269,7 +261,63 @@ The diagrams can be preceded by a tag stating what the
 program to convert them to graphics will be used. ditaa and
 aafigure are formats 'ascii-art-alike'. To plot data, and
 mathematic functions, gnuplot can be used, and to plot complex
-graphics programatically, tikz, pgf and graphviz can be used.
+graphics programatically, tikz can be used:
+
+1.6.2 TIKZ DIAGRAMS
+
+A Tikz diagram (from the Tikz examples)
+
+  \usetikzlibrary{arrows}
+  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,
+    thick,main node/.style={circle,fill=blue!20,draw,font=\sffamily\Large\bfseries}]
+  
+    \node[main node] (1) {1};
+    \node[main node] (2) [below left of=1] {2};
+    \node[main node] (3) [below right of=2] {3};
+    \node[main node] (4) [below right of=1] {4};
+  
+    \path[every node/.style={font=\sffamily\small}]
+      (1) edge node [left] {0.6} (4)
+          edge [bend right] node[left] {0.3} (2)
+          edge [loop above] node {0.1} (1)
+      (2) edge node [right] {0.4} (1)
+          edge node {0.3} (4)
+          edge [loop left] node {0.4} (2)
+          edge [bend right] node[left] {0.1} (3)
+      (3) edge node [right] {0.8} (2)
+          edge [bend right] node[right] {0.2} (4)
+      (4) edge node [left] {0.2} (3)
+          edge [loop right] node {0.6} (4)
+          edge [bend right] node[right] {0.2} (1);
+  \end{tikzpicture}
+
+Source code for that Tikz chunk:
+
+ \usetikzlibrary{arrows}
+ \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,
+   thick,main node/.style={circle,fill=blue!20,draw,font=\sffamily\Large\bfseries}]
+ 
+   \node[main node] (1) {1};
+   \node[main node] (2) [below left of=1] {2};
+   \node[main node] (3) [below right of=2] {3};
+   \node[main node] (4) [below right of=1] {4};
+ 
+   \path[every node/.style={font=\sffamily\small}]
+     (1) edge node [left] {0.6} (4)
+         edge [bend right] node[left] {0.3} (2)
+         edge [loop above] node {0.1} (1)
+     (2) edge node [right] {0.4} (1)
+         edge node {0.3} (4)
+         edge [loop left] node {0.4} (2)
+         edge [bend right] node[left] {0.1} (3)
+     (3) edge node [right] {0.8} (2)
+         edge [bend right] node[right] {0.2} (4)
+     (4) edge node [left] {0.2} (3)
+         edge [loop right] node {0.6} (4)
+         edge [bend right] node[right] {0.2} (1);
+ \end{tikzpicture}
+
+1.6.3 GNUPLOT
 
 1.7 Definition lists
 
@@ -373,12 +421,21 @@ in lowercase (as in the TOC above)
 2.1 Prerrequisites
 
 Zerodoc needs Python (2.6 or newer) the Python PLY 'lex and yacc'
-utilities (2.5 or newer) and distutils for installation.
+utilities (2.5 or newer) and distutils for installation. Aditionally
+when generating diagrams, the programs to parse them need to be
+installed as well.
 
 As an example, in a GNU/Linux Debian 6.0 'Squeeze' system, the
 requirements can be installed using:
 
- # apt-get install python-ply
+ # apt-get install python-ply python-aafigure ditaa
+
+To generate diagrams with gnuplot or tikz, install the pertinent
+packages
+
+ # apt-get install gnuplot
+
+ # apt-get install texlive-picture
 
 2.2 Installing the library and interpreter
 
@@ -413,24 +470,24 @@ Usage: zerodoc [options]
 
 Options:
 
-h, --help
+-h, --help
     show this help message and exit
 
-f FORMAT, --format=FORMAT
+-f FORMAT, --format=FORMAT
     Output format. If ommited, 'html'
 
-o OPTIONS, --options=OPTIONS
+-o OPTIONS, --options=OPTIONS
     Options for format renderer
 
-i FILE, --input=FILE
+-i FILE, --input=FILE
     Use <filename> as input file. If ommited, use
     stdin.
 
-O FILE, --output=FILE
+-O FILE, --output=FILE
     Use <filename> as output file. If ommited,use
     stdout.
 
-HTML output options
+HTML OUTPUT OPTIONS
 
 ditaa
     Use ditaa to format diagrams. When this option
@@ -456,12 +513,12 @@ datauri
    Do not generate image files, embbed the images
    directly in the HTML using
 
-JSON output options
+JSON OUTPUT OPTIONS
 
 Json output has no options. It's output is the json render of the
 parsed tree with no interpretation whatsoever
 
-Confluence output options
+CONFLUENCE OUTPUT OPTIONS
 
 ditaa, jarpath, aafigure, datauri
     With the same meaning as in the HTML output options
@@ -482,45 +539,10 @@ passwd:<passd>
 host:<host>
     Host
 
-Manpage generator options
+MANPAGE GENERATOR OPTIONS
 
 Manpages can be made for the whole document or only for a
 certain part of it (Not yet documented)
-
-4. Using the parser
-
-4.1 Example parsed tree
-
-4.2 Example generator: HTML
-
-5. Defining templates
-
-5.1 Templates file format
-
-5.2 Command line converter
-
-5.3 Feeding the library
-
-5.4 Example: git hook
-
-6. Zerodoc internals
-
-Zerodoc is organized around a lexic and syntactic parser built with
-PLY (Lexx & Yacc for python) that builds an abstract tree of python
-arrays and dictionaries representing the document, and several
-'renderers' that walk this tree and produce the needed output.
-
-6.1 The PLY parser
-
-6.2 "Adjusted" sections
-
-Not everything can be expressed with BNF rules, and some 'adjustement'
-for the tree is done afterwards.
-
-6.3 Extending zerodoc
-
-To add a new renderer, for example, it must be included into the
-zerodoc/ subdirectory
 
 - `git`:http://git-scm.com/
 - `POD`:http://search.cpan.org/dist/perl/pod/perlpod.pod
@@ -533,3 +555,4 @@ zerodoc/ subdirectory
 - `rdoc`:http://rdoc.sourceforge.net/
 - `textile`:http://www.textism.com/tools/textile/index.php
 - `aafigure manual page`:http://packages.python.org/aafigure/manual.html
+
