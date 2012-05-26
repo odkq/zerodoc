@@ -12,7 +12,8 @@ This first two paragraphs are the 'abstract'
 1. TEXT FORMAT
 
 Text is organized into paragraphs. No line can exceed 72 chars in
-regular text.
+regular text. Lines with more than that can be defined by using back\
+slash (\) at the end of the line
 
 - List items
  - Can be defined
@@ -59,6 +60,10 @@ tikz diagrams:
 gnuplot:
 
   (not really yet)
+
+Source code blocks and diagrams do not have the 72 char limitation,
+(anyway it is advised to keep it to make it easier for diffing/email
+etc)
 
 3. LINKS
 

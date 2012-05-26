@@ -253,8 +253,8 @@ def p_textlines(p):
     append_or_create('textlines', p)
 
 def p_deflist(p):
-    ''' deflist : textline deflines '''
-    p[0] = { 'deflist': { 'term': { 'textlines': [p[1]]}, 'definition': p[2] } }
+    ''' deflist : textlines deflines '''
+    p[0] = { 'deflist': { 'term': p[1], 'definition': p[2] } }
 
 def p_deflistline(p):
     '''deflines : deflines firstdiagram
