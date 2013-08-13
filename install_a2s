@@ -1,0 +1,17 @@
+#!/bin/bash
+sudo apt-get install build-essential openjdk-7-jdk php5-cli mercurial
+hg clone https://bitbucket.org/wez/asciitosvg
+hg clone https://bitbucket.org/wez/jlexphp
+hg clone https://bitbucket.org/wez/lemon-php
+cd lemon-php
+cc -o lemon lemon.c
+cd ..
+cd jlexphp
+make
+cd ..
+cd asciitosvg
+make
+make distclean
+cd ..
+sudo cp -R asciitosvg /usr/share/
+rm -fR asciitosvg jlexphp lemon-php

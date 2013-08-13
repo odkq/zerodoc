@@ -212,10 +212,10 @@ sorrounding it:
 Diagrams can be either included directly in the output, just as
 source code, or optionally converted to images (when this is
 possible, for example in a manual page it does not make sense to
-include images). Diagrams are converted using ditaa or aafigure,
-depending on the options parsed to the renderer. Refer to the
-`aafigure manual page` or to the `ditaa website` for help on this
-formats.
+include images). Diagrams are converted using ditaa, aafigure,
+ascii2svg or tikz depending on the options parsed to the renderer.
+Refer to the `aafigure manual page` or to the `ditaa website` for
+help on this formats.
 
 Diagrams are recognized by using TWO or more spaces before the
 first line of them. Anything up to the next 'regular' paragraph

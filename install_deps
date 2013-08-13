@@ -1,0 +1,3 @@
+#!/bin/bash
+bash install_a2s
+sudo apt-get install ditaa python-aafigure
