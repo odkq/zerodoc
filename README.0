@@ -28,9 +28,11 @@ Table of contents
  - 1.4 Links
  - 1.5 Source code
  - 1.6 Diagrams and images
-  - 1.6.1 Ditaa ascii-art diagrams
-  - 1.6.2 TikZ diagrams
-  - 1.6.3 Gnuplot
+  - 1.6.1 ASCIIToSVG ascii-art diagrams
+  - 1.6.2 aafigure ascii-art diagrams
+  - 1.6.3 ditaa ascii-art diagrams
+  - 1.6.4 TikZ diagrams
+  - 1.6.5 Gnuplot
  - 1.7 Definition lists
  - 1.8 The default zerodoc template
   - 1.8.1 Header
@@ -227,23 +229,80 @@ them. This makes sense since no diagram can follow source code or
 viceversa without at least an introduction of what the reader is
 seeing.
 
-1.6.1 DITAA ASCII-ART DIAGRAMS
+1.6.1 ASCIITOSVG ASCII-ART DIAGRAMS
+
+The default for ascii art diagrams is `asciitosvg`. As it name implies,
+it converts text to SVG wich is quite convenient. It is written in php.
+Example diagram: (asciitosvg)
+
+  This is an asciitosvg diagram
+
+  .-------------------------.
+  |[Logo]                   |
+  | .---.-. .-----. .-----. |
+  | | .-. | +-->  | |  <--| |
+  | | '-' | |  <--| +-->  | |
+  | '---'-' '-----' '-----' |
+  |  ascii     2      svg   |
+  |                         |
+  '-------------------------'
+   https://9vx.org/~dho/a2s/
+  
+  [Logo]: {"fill":"#88d","a2s:delref":true}
+
+1.6.2 AAFIGURE ASCII-ART DIAGRAMS
+
+Another format to convert ascii art diagrams to graphics is ditaa. it
+is written in Java and have quite convenient idioms for things like
+sequence diagrams:
+
+  Example diagram: (aafigure)
+
+  +---------+  +---------+  +---------+
+  |Object 1 |  |Object 2 |  |Object 3 |
+  +----+----+  +----+----+  +----+----+
+       |            |            |
+       |            |            |
+       X  Example   |            |
+       X----------->X            |
+       X            X            |
+       X<-----------X            |
+       X            |            |
+       X  Example   |            |
+       X------------------------>X
+       |            |            X
+       X----------->X            X---+
+       X            X            X   |
+       |            |            X<--+
+       X<------------------------X
+       X            |            |
+       |            |            |
+       |            |            |
+
+1.6.3 DITAA ASCII-ART DIAGRAMS
+
+Another common format for ascii art diagrams is ditaa. It does not
+support svg output.
 
  This is the source code of the following paragraph
  (diagram taken from the `ditaa website`:
  
-  +--------+   +-------+    +-------+
-  |        | --+ ditaa +--> |       |
-  |  Text  |   +-------+    |diagram|
-  |Document|   |!magic!|    |       |
-  |     {d}|   |       |    |       |
-  +---+----+   +-------+    +-------+
-       :                         ^
-       |       Lots of work      |
-       +-------------------------+
+ Example diagram: (ditaa)
+
+ +--------+   +-------+    +-------+
+ |        | --+ ditaa +--> |       |
+ |  Text  |   +-------+    |diagram|
+ |Document|   |!magic!|    |       |
+ |     {d}|   |       |    |       |
+ +---+----+   +-------+    +-------+
+      :                         ^
+      |       Lots of work      |
+      +-------------------------+
 
 This is the source code of the following paragraph
 (diagram taken from the `ditaa website`:
+
+  Example diagram: (ditaa)
 
   +--------+   +-------+    +-------+
   |        | --+ ditaa +--> |       |
@@ -257,7 +316,7 @@ This is the source code of the following paragraph
 
 Note that there are two spaces before the first +---
 
-1.6.2 TIKZ DIAGRAMS
+1.6.4 TIKZ DIAGRAMS
 
 A Tikz diagram (from the Tikz examples)
 
@@ -311,15 +370,13 @@ Source code for that Tikz chunk:
          edge [bend right] node[right] {0.2} (1);
  \end{tikzpicture}
 
-1.6.3 GNUPLOT
+1.6.5 GNUPLOT
 
-1.6.4 Diagram tagging and autodetection
+1.6.6 Diagram tagging and autodetection
 
 As with source code, the type of diagram is autodetected for Tikz and
 gnuplot diagrams. This detection can be overriden by specifing it in
-the first line of the diagram, between parenthesis. For example, to
-render a 
-Diagram tagging and autodetection
+the first line of the diagram, between parenthesis.
 
 1.7 Definition lists
 
@@ -558,5 +615,6 @@ certain part of it (Not yet documented)
 - `rdoc`:http://rdoc.sourceforge.net/
 - `textile`:http://www.textism.com/tools/textile/index.php
 - `aafigure manual page`:http://packages.python.org/aafigure/manual.html
-
+- `asciitosvg`:https://9vx.org/~dho/a2s/
+- `ditaa':http://ditaa.sourceforge.net/
 

@@ -19,6 +19,7 @@
 """
 import os
 import cgi
+import string
 import hashlib
 import tempfile
 import subprocess
@@ -51,19 +52,30 @@ def generate_diagram_ditaa(path, options):
         print 'Error generating diagram!'
         return None
     j = o[i:].find('\n')
-    return o[i+19:i+j]
+    return o[i+19:i+j], 'png'
 
 def generate_diagram_aafigure(path, options):
     # aafigure diagram -t svg -o diagram.svg
     if 'svg' in options:
+        ext = 'svg'
         outpath = path + '.svg'
         r = ['aafigure', path, '-t', 'svg', '-o', outpath]
     else:
+        ext = 'png'
         outpath = path + '.png'
         r = ['aafigure', path, '-t', 'png', '-o', outpath]
     p = subprocess.Popen(r, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     o = p.communicate()[0]
-    return outpath
+    return outpath, ext
+
+def generate_diagram_a2s(path, options):
+    # aafigure diagram -t svg -o diagram.svg
+    outpath = path + '.svg'
+    r = ['php5', '/usr/share/asciitosvg/a2s' ]
+    # , path, '-t', 'svg', '-o', outpath]
+    p = subprocess.Popen(r, stdout=open(outpath, 'w'), stdin=open(path, 'r'))
+    p.communicate()
+    return outpath, 'svg'
 
 def generate_diagram_tikz(path, options):
     texfile = path + '.tex'
@@ -109,7 +121,27 @@ def generate_diagram_tikz(path, options):
 def generate_diagram_gnuplot(path, options):
     return None
 
-def detect_diagram_type(path):
+def detect_first_line(path):
+    f = open(path, 'r')
+    t = f.readlines()
+    for fmt in [ 'ditaa', 'aafigure', 'asciitosvg' ]:
+        if t[0].find(fmt) != -1:
+            f = tempfile.NamedTemporaryFile(delete=False)
+            f.write(string.join(t[1:]))
+            n = f.name
+            f.close()
+            return n, fmt
+    return path, None
+
+def detect_diagram_type(path, options):
+    # The diagram can be explicitly tagged on
+    # it's first line. Otherwise it is deducted
+    # from it's content or the default option passed
+    # on the command line
+    newpath, t = detect_first_line(path)
+    if t != None:
+        return newpath, t
+
     types = {
         'tikz' : [ '\\begin{tikzpicture}' ],
         'gnuplot' : ['plot']
@@ -120,8 +152,11 @@ def detect_diagram_type(path):
         for k in types.keys():
             for kw in types[k]:
                 if l.find(kw) != -1:
-                    return k
-    return 'unknown'
+                    return path, k
+    for fmt in [ 'ditaa', 'aafigure', 'asciitosvg' ]:
+        if fmt in options:
+            return path, fmt
+    return path, 'unknown'
 
 # get_diagram:
 # Return the diagram bitmap in a buffer
@@ -130,25 +165,28 @@ def get_diagram(options, lines):
     for line in lines:
         f.write(line + '\n')
     f.close()
-    n = f.name
-    type = detect_diagram_type(n)
-    if type == 'unknown':
-        if 'ditaa' in options:
-            dfile = generate_diagram_ditaa(n, options)
-        elif 'aafigure' in options:
-            dfile = generate_diagram_aafigure(n, options)
-        else:
-            print 'Specify a default conversor for diagrams! (ditaa or aafigure)'
-            return None
-    elif type == 'tikz':
+    p = f.name
+    n, t = detect_diagram_type(p, options)
+    # if type == 'unknown':
+    if 'ditaa' == t:
+        dfile, ext = generate_diagram_ditaa(n, options)
+    elif 'aafigure' == t:
+        dfile, ext = generate_diagram_aafigure(n, options)
+    elif 'asciitosvg' == t:
+        dfile, ext = generate_diagram_a2s(n, options)
+    elif t == 'tikz':
         dfile = generate_diagram_tikz(n, options)
-    elif type == 'gnuplot':
+        ext = 'png'
+    elif t == 'gnuplot':
         dfile = generate_diagram_gnuplot(n, options)
+    else:
+        print 'Specify a default conversor for diagrams! (ditaa/aafigure/a2s)'
+        return None, None
     os.remove(n)
     if dfile == None:
         return None
     f = open(dfile, 'r')
     r = f.read()
     f.close()
-    return r
+    return r, ext
 

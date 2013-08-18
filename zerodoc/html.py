@@ -20,6 +20,7 @@
 import os
 import cgi
 import base64
+import string
 import tempfile
 import zerodoc.diagram
 import zerodoc.utils
@@ -102,23 +103,27 @@ def write_diagramlines(proc, options, diagramlines):
         else:
             print 'unknown element in sourcelines (diagram)' + str(sline) +\
             ' ' + str(sline.keys())
-    img = zerodoc.diagram.get_diagram(options, dlines)
+    img, ext = zerodoc.diagram.get_diagram(options, dlines)
     if img == None:
         return ''
     if not 'datauri' in options:
         if not os.path.exists('images'):
             os.mkdir('images')
-        f = tempfile.NamedTemporaryFile(delete=False, prefix='zero', dir='images')
+        f = tempfile.NamedTemporaryFile(suffix='.' + ext, delete=False, prefix='zero', dir='images')
         f.write(img)
         n = f.name
         f.close()
         return '<img src="' + n + '" />\n'
 
-    duri = str(base64.encodestring(img)).replace("\n", "")
-    if not 'svg' in options:
-        t = '<img alt="sample" src="data:image/png;base64,{0}">\n'.format(duri)
+    if ext == 'png':
+        # Embed png using 'datauri' old trick
+        duri = str(base64.encodestring(img)).replace("\n", "")
+        t = '<img alt="sample" src="data:image/' + ext + ';base64,{0}">\n'.format(duri)
     else:
-        t = '<img alt="sample" src="data:image/svg;base64,{0}">\n'.format(duri)
+        # Embed svg directly in the html file
+        # remo
+        t = string.join(img.split('\n')[4:],'\n')
+        
     return t
 
  
@@ -153,10 +158,24 @@ def write(doc, options = ['ditaa', 'datauri']):
     proc = zerodoc.utils.Processor(doc, '<a href="{1}">{0}</a>', cgi.escape)
     o = ''
     if not 'noheaders' in options:
-        o += '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 Strict//EN">\n'
+        if not 'html5' in options:
+            # i know, i know..
+            o += '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 Strict//EN">\n'
+        else:
+            o += '<!DOCTYPE html>\n'
         o += '<html>\n'
         o += '<head>\n'
-        o += '<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" >'
+        if not 'html5' in options:
+            o += '<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1" >'
+        else:
+            o += '<meta charset="utf-8">\n'
+            css = None
+            for option in options:
+                if option[:3] == 'css':
+                    css = option.split(':')[1]
+                    print 'found css in ' + css
+            if css:
+                o += '<link rel="stylesheet" href="' + css + '">\n'
         o += '<title>\n'
         for titleline in doc['header']['title']['textlines']:
             o += proc.process(titleline) + '\n'
