@@ -22,6 +22,7 @@ import cgi
 import base64
 import string
 import tempfile
+import subprocess
 import zerodoc.diagram
 import zerodoc.utils
 
@@ -66,13 +67,30 @@ def write_listlines(proc, options, listlines, toc):
     return o
 
 def write_sourcelines(proc, options, sourcelines):
-    o = '<pre>\n'
-    for sline in sourcelines:
-        if 'string' in sline:
-            o += proc.process(sline) + '\n'
-        else:
-            print 'no string in sourceline? ' + str(sline) + ' ' + str(sline.keys())
-    o += '</pre>\n'
+    if 'pygments' in options:
+        o = '<pre>\n'
+        for sline in sourcelines:
+            if 'string' in sline:
+                o += proc.process(sline) + '\n'
+            else:
+                print 'no string in sourceline? ' + str(sline) + ' ' + str(sline.keys())
+        o += '</pre>\n'
+    else:
+        f = tempfile.NamedTemporaryFile(delete=False,
+            prefix='zero', dir='/tmp')
+        for sline in sourcelines:
+            if 'string' in sline:
+                # Do not process line
+                f.write(sline['string'] + '\n')
+                # f.write(proc.process(sline) + '\n')
+        n = f.name
+        f.close()
+        output = n + '.html'
+        subprocess.call(['pygmentize', '-f', 'html', '-l', 'c', '-o',
+            output, n])
+        o = open(output).read()
+        os.remove(n)
+        os.remove(output)
     return o
 
 def write_deflist(proc, options, deflist):
@@ -175,7 +193,12 @@ def write(doc, options = ['ditaa', 'datauri']):
                     css = option.split(':')[1]
                     print 'found css in ' + css
             if css:
-                o += '<link rel="stylesheet" href="' + css + '">\n'
+                if 'datauri' in options:
+                    o += '<style media="screen" type="text/css">'
+                    o += open(css).read()
+                    o += '</style>'
+                else:
+                    o += '<link rel="stylesheet" href="' + css + '">\n'
         o += '<title>\n'
         for titleline in doc['header']['title']['textlines']:
             o += proc.process(titleline) + '\n'
