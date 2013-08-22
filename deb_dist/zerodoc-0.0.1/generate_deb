@@ -1,0 +1,4 @@
+python setup.py --command-packages=stdeb.command sdist_dsc
+cd deb_dist/zerodoc-0.0.1/
+dpkg-buildpackage -rfakeroot -uc -us
+
