@@ -73,7 +73,9 @@ def generate_diagram_a2s(path, options):
     outpath = path + '.svg'
     r = ['php5', '/usr/share/asciitosvg/a2s' ]
     # , path, '-t', 'svg', '-o', outpath]
-    p = subprocess.Popen(r, stdout=open(outpath, 'w'), stdin=open(path, 'r'))
+    with open(os.devnull, "w") as fnull:
+        p = subprocess.Popen(r, stdout=open(outpath, 'w'),
+            stdin=open(path, 'r'), stderr = fnull)
     p.communicate()
     return outpath, 'svg'
 
