@@ -31,6 +31,8 @@ setup(
     data_files = [
                 ("/usr/share/doc/zerodoc", 
                         [ "README.0"]),
+                ("/usr/share/zerodoc/stylesheets", 
+                        [ "stylesheets/default.css"]),
     ],
     classifiers = classifiers
 )
