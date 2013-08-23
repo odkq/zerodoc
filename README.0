@@ -123,6 +123,7 @@ because that will make the text less readable than it's processed
 output.
 
 1.3 Formatting attributes
+-------------------------
 
 Some attributes for the text inherited from other common formats and
 email conventions are supported:
@@ -140,6 +141,7 @@ Renders into:
 - This is a 'cursive'
 
 1.4 Links
+---------
 
 Links can be included directly in the text along with their destination,
 or referenced first in the text and then 'resolved' in another line.
@@ -171,6 +173,7 @@ This line contains two referenced links: `firstlink` and `secondlink`
 - `secondlink`:http://www.google.com
 
 1.5 Source code
+---------------
 
 Source code is text that will be included verbatim in the output. In
 source code, newlines are meaningful and no limits on line-length are
@@ -199,16 +202,20 @@ sorrounding it:
  source code, newlines are meaningful and no limits on line-length are
  imposed. An example:
  
-  for (i = 0; i < nblocks; i++) { 
-          gid_t *b; 
-          b = (void *)__get_free_page(GFP_USER); 
-          if (!b) 
-                  goto out_undo_partial_alloc; 
-          group_info->blocks[i] = b; 
+  #include <stdio.h>
+ 
+  int main() {
+          // print hello world 100 times
+          for (int i = 0; i < 100; i++) {
+                  printf("Hello, world!\n");
+          }
   }
-
+ 
  Source code is identified by one space before the content of
  the first line and one or more spaces in the rest. No tabs can
+
+ When pygmentize is used, the default language for syntax highlighting
+ can be specified in options.
 
 1.6 DIAGRAMS AND IMAGES
 
@@ -374,12 +381,14 @@ Source code for that Tikz chunk:
 1.6.5 GNUPLOT
 
 1.6.6 Diagram tagging and autodetection
+---------------------------------------
 
 As with source code, the type of diagram is autodetected for Tikz and
 gnuplot diagrams. This detection can be overriden by specifing it in
 the first line of the diagram, between parenthesis.
 
 1.7 Definition lists
+--------------------
 
 A definition list is a list of terms and corresponding definitions.
 It usually renders (in HTML, man pages, ReST) in the text of the
@@ -406,6 +415,7 @@ man -a intro
     to quit between successive displays or skip any of them.
 
 1.8 The default zerodoc template
+--------------------------------
 
 1.8.1 Header
 
@@ -617,5 +627,5 @@ certain part of it (Not yet documented)
 - `textile`:http://www.textism.com/tools/textile/index.php
 - `aafigure manual page`:http://packages.python.org/aafigure/manual.html
 - `asciitosvg`:https://9vx.org/~dho/a2s/
-- `ditaa':http://ditaa.sourceforge.net/
+- `ditaa`:http://ditaa.sourceforge.net/
 
