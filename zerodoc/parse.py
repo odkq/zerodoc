@@ -337,6 +337,14 @@ def p_error(t):
         print "Syntax error at EOF"
     sys.exit(0)
 
+# Detect any --- === ~~~~ that could have been added
+def test_subtitle(s):
+    for c in ['-', '=', '~']:
+        test = '-' * len(s)
+        if test == s:
+            return True
+    return False
+
 def adjust_sections(doc):
     ''' Walk the parsed tree looking for paragraphs that are title
         sections and reorganize the tree with sections '''
@@ -349,9 +357,16 @@ def adjust_sections(doc):
         para = paras[i]
         if para.has_key('textlines') == False:
             continue
-        if len(para['textlines']) != 1:
+        if len(para['textlines']) == 2:
+            if test_subtitle(para['textlines'][1]['string']):
+                para['textlines'] = para['textlines'][:-1]
+            else:
+                continue
+        elif len(para['textlines']) != 1:
             continue
+
         title_candidate = para['textlines'][0]['string']
+
         toc_string, level = in_toclist(title_candidate, doc)
         if toc_string == None:
             continue
