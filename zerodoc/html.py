@@ -191,7 +191,6 @@ def write(doc, options = ['ditaa', 'datauri']):
             for option in options:
                 if option[:3] == 'css':
                     css = option.split(':')[1]
-                    print 'found css in ' + css
             if css:
                 if 'datauri' in options:
                     o += '<style media="screen" type="text/css">'
