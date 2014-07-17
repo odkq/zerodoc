@@ -1,4 +1,5 @@
-zerodoc
+Zerodoc
+=======
 
 Version 0.1.0 Last updated 2012-05-19 pablo@odkq.com
 
@@ -54,6 +55,7 @@ Table of contents
  - Manpage generator options
 
 1. THE ZERODOC FORMAT
+---------------------
 
 1.1 Paragraphs and lines
 
@@ -218,6 +220,7 @@ sorrounding it:
  can be specified in options.
 
 1.6 DIAGRAMS AND IMAGES
+-----------------------
 
 Diagrams can be either included directly in the output, just as
 source code, or optionally converted to images (when this is
@@ -255,13 +258,12 @@ Example diagram: (asciitosvg)
   |                         |
   '-------------------------'
    https://9vx.org/~dho/a2s/
-  
   [Logo]: {"fill":"#88d","a2s:delref":true}
 
 1.6.2 AAFIGURE ASCII-ART DIAGRAMS
 
-Another format to convert ascii art diagrams to graphics is ditaa. it
-is written in Java and have quite convenient idioms for things like
+Another format to convert ascii art diagrams to graphics is aafigure. it
+is written in Python and have quite convenient idioms for things like
 sequence diagrams:
 
   Example diagram: (aafigure)
@@ -328,10 +330,10 @@ Note that there are two spaces before the first +---
 
 A Tikz diagram (from the Tikz examples)
 
-  \usetikzlibrary{arrows}
-  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,
-    thick,main node/.style={circle,fill=blue!20,draw,font=\sffamily\Large\bfseries}]
-  
+  \begin{tikzpicture}[auto,node distance=3cm,
+    thick,main node/.style={circle,fill=blue!20,draw,
+    font=\sffamily\Large\bfseries}]
+
     \node[main node] (1) {1};
     \node[main node] (2) [below left of=1] {2};
     \node[main node] (3) [below right of=2] {3};
@@ -352,7 +354,7 @@ A Tikz diagram (from the Tikz examples)
           edge [bend right] node[right] {0.2} (1);
   \end{tikzpicture}
 
-Source code for that Tikz chunk:
+LaTeX source code for that Tikz chunk:
 
  \usetikzlibrary{arrows}
  \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,

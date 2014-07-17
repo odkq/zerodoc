@@ -305,8 +305,13 @@ def p_firstlist(p):
 def p_title(p):
     'title : textlines NEWLINE'
     # Copy directly the textlines as title is
-    # prefixed by parent 'header'
-    p[0] = p[1]
+    # prefixed by parent 'header', after removing any 'subtitle'
+    print 'title ' + str(p[1])
+    para = p[1]
+    if test_subtitle(para['textlines'][1]['string']):
+        print 'Found \'subtitle\' on title'
+        para['textlines'] = para['textlines'][:-1]
+    p[0] = para
 
 def p_header(p):
     'header : title textparas listlines NEWLINE'
@@ -340,7 +345,7 @@ def p_error(t):
 # Detect any --- === ~~~~ that could have been added
 def test_subtitle(s):
     for c in ['-', '=', '~']:
-        test = '-' * len(s)
+        test = c * len(s)
         if test == s:
             return True
     return False
@@ -357,9 +362,10 @@ def adjust_sections(doc):
         para = paras[i]
         if para.has_key('textlines') == False:
             continue
-        if len(para['textlines']) == 2:
+        if len(para['textlines']) == 2:	  # A paragraph with 2 lines
             if test_subtitle(para['textlines'][1]['string']):
                 para['textlines'] = para['textlines'][:-1]
+		print 'Found subtitle for ' + str(para['textlines'][0])
             else:
                 continue
         elif len(para['textlines']) != 1:
