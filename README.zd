@@ -12,7 +12,8 @@ for the whole format.
 Included are a Python library can be used to translate an input
 file or buffer into a tree that for wich generators can be easily
 written, and a command line tool to call existing generators for
-HTML, markdown, JSON and manpages (troff) formats.
+HTML, reStructuredText (that can then be converted or integrated
+with other tools like Sphinx) and a JSON intermediate representation.
 
 Table of contents
 
@@ -40,10 +41,11 @@ Table of contents
   - 2.2.1 Using a git snapshot
   - 2.2.2 Using pypi
 - 3. Using the command line converter
- - SYNOPSIS
- - HTML output options
- - JSON output options
- - Confluence output options
+ - 3.1 SYNOPSIS
+ - 3.2 HTML output options
+ - 3.3 reStructuredText output options
+ - 3.4 JSON output options
+ - 3.5 Confluence output options
 
 1. THE ZERODOC FORMAT
 
@@ -510,7 +512,7 @@ Change to the zerodoc dir and call setup.py as root
 zerodoc - converts a zerodoc text file to HTML and many
 other formats
 
-SYNOPSIS
+3.1 SYNOPSIS
 
 Usage: zerodoc [options]
 
@@ -533,7 +535,7 @@ Options:
     Use <filename> as output file. If ommited,use
     stdout.
 
-HTML OUTPUT OPTIONS
+3.2 HTML OUTPUT OPTIONS
 
 ditaa
     Use ditaa to format diagrams. When this option
@@ -559,12 +561,19 @@ datauri
    Do not generate image files, embbed the images
    directly in the HTML using `DataURIscheme`
 
-JSON OUTPUT OPTIONS
+3.3 reStructuredText output options
+
+notoc
+    Usually `reStructuredText` processors attach their own index in the
+    side (`sphinx-doc`, for example). In that case, you better do not
+    output the toc (it is still used to get section titles)
+
+3.4 JSON OUTPUT OPTIONS
 
 Json output has no options. It's output is the json render of the
 parsed tree with no interpretation whatsoever
 
-CONFLUENCE OUTPUT OPTIONS
+3.5 CONFLUENCE OUTPUT OPTIONS
 
 ditaa, jarpath, aafigure, datauri
     With the same meaning as in the HTML output options
@@ -599,4 +608,6 @@ host:<host>
 - `aafigure manual page`:http://packages.python.org/aafigure/manual.html
 - `asciitosvg`:https://9vx.org/~dho/a2s/
 - `ditaa website`:http://ditaa.sourceforge.net/
+- `reStructuredText`:http://docutils.sourceforge.net/rst.html
+- `sphinx-doc`:http://sphinx-doc.org/
 

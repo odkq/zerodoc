@@ -27,10 +27,10 @@ setup(
     url = "https://github.com/odkq/zerodoc",
     license = "GPL v3",
     # README.0 is written in zerodoc itself
-    long_description = open('README.0').read(),
+    long_description = open('README.zd').read(),
     data_files = [
                 ("/usr/share/doc/zerodoc", 
-                        [ "README.0"]),
+                        [ "README.zd"]),
                 ("/usr/share/zerodoc/stylesheets", 
                         [ "stylesheets/default.css"]),
     ],

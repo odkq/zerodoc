@@ -212,8 +212,10 @@ def write(doc, options = ['ditaa', 'datauri']):
     o += '</h1>\n'
     # o += '<h2>Abstract</h2>'
     for para in doc['header']['abstract']['abstract']:
-       o += write_html_paragraph(proc, options, para)
-    # o += '<h2>Table of contents</h2>'
+        if para['textlines'][0]['string'] == 'Table of contents':
+            continue
+        o += write_html_paragraph(proc, options, para)
+    o += '<h3>Table of contents</h3>'
     o += write_html_paragraph(proc, options, doc['header']['toc'], toc=True)
     for section in doc['body']['sections']:
         o += write_html_section(proc, options, section) 

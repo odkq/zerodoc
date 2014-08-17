@@ -82,6 +82,8 @@ def generate_diagram_a2s(path, options):
     return outpath, 'svg'
 
 def generate_diagram_tikz(path, options):
+    ''' generate_diagram_tikz '''
+    print 'generate_diagram_tikz: {}'.format(path)
     texfile = path + '.tex'
     pdffile = path + '.pdf'
     psfile = path + '.eps'
@@ -108,6 +110,7 @@ def generate_diagram_tikz(path, options):
     dpis = extract_option(options,'dpis')
     if dpis == None:
         dpis = '150'
+    last_cwd = os.getcwd()
     os.chdir('/tmp')
     try:
         subprocess.check_call(['pdflatex', texfile ], stdin=subprocess.PIPE,
@@ -120,6 +123,7 @@ def generate_diagram_tikz(path, options):
     for file in [ pdffile, psfile, auxfile, logfile, texfile ]:
         if os.path.exists(file):
             os.remove(file)
+    os.chdir(last_cwd)
     return pngfile
 
 def generate_diagram_gnuplot(path, options):

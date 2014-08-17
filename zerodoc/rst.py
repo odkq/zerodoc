@@ -3,7 +3,7 @@
     zerodoc reStructuredText (http://docutils.sourceforge.net/rst.html)
     output
     
-    Copyright (C) 2012 Pablo Martin <pablo at odkq.com>
+    Copyright (C) 2014 Pablo Martin <pablo at odkq.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
+import os.path
 import cgi
 import base64
 import string
@@ -26,6 +27,9 @@ import tempfile
 import subprocess
 import zerodoc.diagram
 import zerodoc.utils
+import zerodoc.html     # For raw html pass-through
+# (http://docutils.sourceforge.net/docs/ref/rst/directives.html\
+#  raw-data-pass-through)
 import rsvg
 
 def write_listlines(proc, options, listlines, toc):
@@ -93,7 +97,29 @@ def write_textlines(proc, options, textlines):
     return o
 
 def write_diagramlines(proc, options, diagramlines):
-    return '(some diagram here)'
+    # o = '\n\n.. raw:: html\n\n'
+    # o += zerodoc.html.write_diagramlines(proc, options, diagramlines)
+    dlines = []
+    if 'rawdiagrams' in options:
+        return write_sourcelines(options, diagramlines)
+    for sline in diagramlines:
+        if 'string' in sline:
+            dlines.append(sline['string'])
+        else:
+            print 'unknown element in sourcelines (diagram)' + str(sline) +\
+            ' ' + str(sline.keys())
+    img, ext = zerodoc.diagram.get_diagram(options, dlines)
+    if img == None:
+        return ''
+    if not 'datauri' in options:
+        if not os.path.exists('images'):
+            os.mkdir('images')
+        f = tempfile.NamedTemporaryFile(suffix='.' + ext, delete=False, prefix='zero', dir='images')
+        f.write(img)
+        n = f.name
+        f.close()
+        return '\n.. image:: images/' + os.path.basename(n) + '\n\n'
+    # return o
 
  
 def write_rst_paragraph(proc, options, para, toc = False):
@@ -126,7 +152,7 @@ def write_rst_section(proc, options, section):
     o += '\n\n'
     return o
 
-def write(doc, options = ['ditaa', 'datauri']):
+def write(doc, options = ['ditaa', 'datauri', 'notoc']):
     '''
     Output the reStructuredText rendering of a doc tree
     '''
@@ -142,9 +168,17 @@ def write(doc, options = ['ditaa', 'datauri']):
     # o += '</h1>\n'
     # o += '<h2>Abstract</h2>'
     for para in doc['header']['abstract']['abstract']:
-       o += write_rst_paragraph(proc, options, para)
-    # o += '<h2>Table of contents</h2>'
-    o += write_rst_paragraph(proc, options, doc['header']['toc'], toc=True)
+        if para['textlines'][0]['string'] == 'Table of contents':
+            continue
+        o += write_rst_paragraph(proc, options, para)
+    o += '\n'
+    if not 'notoc' in options:
+        # Usually reStructuredText processors attach their own index in the
+        # side (sphinx, for example). In that case, you better do not output
+        # the toc (it is still used)
+        o += 'Table of contents\n'
+        o += '-----------------\n'
+        o += write_rst_paragraph(proc, options, doc['header']['toc'], toc=True)
     for section in doc['body']['sections']:
         o += write_rst_section(proc, options, section) 
     return o
