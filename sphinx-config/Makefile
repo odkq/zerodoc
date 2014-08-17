@@ -49,9 +49,9 @@ help:
 README.rst: ../README.zd
 	zerodoc -f rst -o notoc -i ../README.zd -O README.rst
 
+# rm -rf README.rst taken out for now
 clean:
 	rm -rf $(BUILDDIR)/
-	rm -rf README.rst
 	rm -rf images/
 
 html: README.rst
