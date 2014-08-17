@@ -1,0 +1,75 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with ASCIIToSVG (http://9vx.org/~dho/a2s/) -->
+<svg width="426px" height="238px" version="1.1"
+  xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <filter id="dsFilter" width="150%" height="150%">
+      <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3"/>
+      <feColorMatrix result="matrixOut" in="offOut" type="matrix" values="0.2 0 0 0 0 0 0.2 0 0 0 0 0 0.2 0 0 0 0 0 1 0"/>
+      <feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="3"/>
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal"/>
+    </filter>
+    <marker id="iPointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 10 0 L 10 10 L 0 5 z" />
+    </marker>
+    <marker id="Pointer"
+      viewBox="0 0 10 10" refX="5" refY="5" 
+      markerUnits="strokeWidth"
+      markerWidth="8" markerHeight="7"
+      orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" />
+    </marker>
+  </defs><g id="boxes" stroke="black" stroke-width="2" fill="none" >
+<g id="groupLogo">
+	<path id="pathLogo" filter="url(#dsFilter)" fill="#fff" d="M 31.5 34 Q 31.5 24 41.5 24 L 255.5 24 Q 265.5 24 265.5 34 L 265.5 142 Q 265.5 152 255.5 152 L 41.5 152 Q 31.5 152 31.5 142 Z" />
+	<text x="44.1" y="44.8" id="textLogo" fill="#000" stroke="none" style="font-family:Consolas,Monaco,Anonymous Pro,Anonymous,Bitstream Sans Mono,monospace;font-size:15.2px" >Logo </text>
+
+	<text x="53.1" y="124.8" id="textLogo" fill="#000" stroke="none" style="font-family:Consolas,Monaco,Anonymous Pro,Anonymous,Bitstream Sans Mono,monospace;font-size:15.2px" >ascii </text>
+
+	<text x="143.1" y="124.8" id="textLogo" fill="#000" stroke="none" style="font-family:Consolas,Monaco,Anonymous Pro,Anonymous,Bitstream Sans Mono,monospace;font-size:15.2px" >2</text>
+
+	<text x="206.1" y="124.8" id="textLogo" fill="#000" stroke="none" style="font-family:Consolas,Monaco,Anonymous Pro,Anonymous,Bitstream Sans Mono,monospace;font-size:15.2px" >svg </text>
+
+</g>
+<g id="group2">
+	<path id="path2" filter="url(#dsFilter)" fill="#fff" d="M 49.5 66 Q 49.5 56 59.5 56 L 75.5 56 Q 85.5 56 85.5 46 L 93.5 56 Q 103.5 56 103.5 66 L 103.5 94 Q 103.5 104 93.5 104 L 95.5 104 Q 85.5 104 85.5 94 L 59.5 104 Q 49.5 104 49.5 94 Z" />
+</g>
+<g id="group5">
+	<path id="path5" filter="url(#dsFilter)" fill="#fff" d="M 121.5 66 Q 121.5 56 131.5 56 L 165.5 56 Q 175.5 56 175.5 66 L 175.5 94 Q 175.5 104 165.5 104 L 131.5 104 Q 121.5 104 121.5 94 Z" />
+</g>
+<g id="group7">
+	<path id="path7" filter="url(#dsFilter)" fill="#fff" d="M 193.5 66 Q 193.5 56 203.5 56 L 237.5 56 Q 247.5 56 247.5 66 L 247.5 94 Q 247.5 104 237.5 104 L 203.5 104 Q 193.5 104 193.5 94 Z" />
+</g>
+<g id="group9">
+	<path id="path9" filter="url(#dsFilter)" fill="#fff" d="M 67.5 82 Q 67.5 72 77.5 72 L 75.5 72 Q 85.5 72 85.5 82 L 85.5 78 Q 85.5 88 75.5 88 L 77.5 88 Q 67.5 88 67.5 78 Z" />
+</g>
+</g>
+<g id="lines" stroke="black" stroke-width="2" fill="none" >
+<g id="group153">
+	<path id="path153" stroke-dasharray="5 5" d="M 85.5 168 L 85.5 200 " />
+</g>
+<g id="group199">
+	<path id="path199" marker-end="url(#Pointer)" d="M 121.5 72 L 148.5 72 " />
+</g>
+<g id="group239">
+	<path id="path239" marker-start="url(#iPointer)" d="M 148.5 88 L 175.5 88 " />
+</g>
+<g id="group304">
+	<path id="path304" marker-end="url(#Pointer)" d="M 193.5 88 L 220.5 88 " />
+</g>
+<g id="group342">
+	<path id="path342" marker-start="url(#iPointer)" d="M 220.5 72 L 247.5 72 " />
+</g>
+</g>
+<g id="text" fill="black" style="font-family:Consolas,Monaco,Anonymous Pro,Anonymous,Bitstream Sans Mono,monospace;font-size:15.2px" >
+<text x="35.1" y="172.8" id="text5" fill="#000" >https //9vx.org/~dho/a2s/</text>
+<text x="26.1" y="188.8" id="text6" fill="#000" >[Logo] </text>
+<text x="98.1" y="188.8" id="text7" fill="#000" >{&quot;fill&quot;:&quot;#88d&quot;,&quot;a2s:delref&quot;:true}</text>
+</g>
+</svg>
