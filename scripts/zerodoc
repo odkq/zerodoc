@@ -21,6 +21,7 @@
 """
 import sys
 import zerodoc.html
+import zerodoc.rst
 import zerodoc.parse
 import json
 import optparse
@@ -37,7 +38,9 @@ def parse_file_into(i, o, f, fopt):
     elif f == 'confluence':
          o.write(zerodoc.confluence.write(d, fopt))
     elif f == 'json':
-	 o.write(json.dumps(d, indent=2))
+        o.write(json.dumps(d, indent=2))
+    elif f == 'rst':
+         o.write(zerodoc.rst.write(d, fopt))
     else:
          return 'unknown format \'' + f + '\' requested.'
     return None

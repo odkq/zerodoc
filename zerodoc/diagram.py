@@ -19,6 +19,7 @@
 """
 import os
 import cgi
+import rsvg
 import string
 import hashlib
 import tempfile
@@ -64,6 +65,7 @@ def generate_diagram_aafigure(path, options):
         ext = 'png'
         outpath = path + '.png'
         r = ['aafigure', path, '-t', 'png', '-o', outpath]
+    print 'calling ' + string.join(r, ' ')
     p = subprocess.Popen(r, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     o = p.communicate()[0]
     return outpath, ext
@@ -184,11 +186,18 @@ def get_diagram(options, lines):
     else:
         print 'Specify a default conversor for diagrams! (ditaa/aafigure/a2s)'
         return None, None
-    os.remove(n)
     if dfile == None:
         return None
     f = open(dfile, 'r')
     r = f.read()
+    if 'svg' in options and 'aafigure' == t:
+        # Set width on line four of the outputted svg
+        handle = rsvg.Handle(file=dfile)
+        lines = r.split('\n')
+        lines[4] += (' width="' + str(handle.props.width) +
+                     'px" height="' + str(handle.props.height) + 'px"')
+        r = string.join(lines, '\n')
     f.close()
+    # os.remove(n)
     return r, ext
 

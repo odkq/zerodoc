@@ -25,6 +25,7 @@ import tempfile
 import subprocess
 import zerodoc.diagram
 import zerodoc.utils
+import rsvg
 
 def write_listlines(proc, options, listlines, toc):
     lastlevel = 0
@@ -139,8 +140,10 @@ def write_diagramlines(proc, options, diagramlines):
         t = '<img alt="sample" src="data:image/' + ext + ';base64,{0}">\n'.format(duri)
     else:
         # Embed svg directly in the html file
-        # remo
-        t = string.join(img.split('\n')[4:],'\n')
+        # remove first 4 lines (<xml> and doctype) and set witdth and height
+        # attributes that aafigure does not set)
+        lines = img.split('\n')[4:]
+        t = string.join(lines,'\n')
         
     return t
 
