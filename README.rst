@@ -225,8 +225,7 @@ The default for ascii art diagrams is `asciitosvg <https://9vx.org/~dho/a2s/>`_.
 it converts text to SVG wich is quite convenient. It is written in php.
 Example diagram: (asciitosvg)
 
-.. image:: sphinx-config/images/zero6QR3h1.svg
-
+.. image:: https://raw.githubusercontent.com/odkq/zerodoc/master/sphinx-config/images/zero6QR3h1.svg
 
 
 1.6.2 aafigure ascii-art diagrams
@@ -236,7 +235,7 @@ Another format to convert ascii art diagrams to graphics is aafigure. it
 is written in Python and have quite convenient idioms for things like
 sequence diagrams:
 
-.. image:: sphinx-config/images/zeroSufppO.png
+.. image:: https://raw.githubusercontent.com/odkq/zerodoc/master/sphinx-config/images/zeroSufppO.png
 
 
 
@@ -265,7 +264,7 @@ support svg output.
 This is the source code of the following paragraph
 (diagram taken from the `ditaa website <http://ditaa.sourceforge.net/>`_
 
-.. image:: sphinx-config/images/zeroSOJzdB.png
+.. image:: https://raw.githubusercontent.com/odkq/zerodoc/master/sphinx-config/images/zeroSOJzdB.png
 
 
 Note that there are two spaces before the first +---
@@ -276,7 +275,7 @@ Note that there are two spaces before the first +---
 
 A Tikz diagram (from the Tikz examples)
 
-.. image:: sphinx-config/images/zeroniXuwJ.png
+.. image:: https://raw.githubusercontent.com/odkq/zerodoc/master/sphinx-config/images/zeroniXuwJ.png
 
 
 LaTeX source code for that Tikz chunk:
