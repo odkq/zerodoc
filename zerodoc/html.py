@@ -25,7 +25,6 @@ import tempfile
 import subprocess
 import zerodoc.diagram
 import zerodoc.utils
-import rsvg
 
 def write_listlines(proc, options, listlines, toc):
     lastlevel = 0

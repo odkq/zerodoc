@@ -13,7 +13,7 @@ classifiers = [
 
 setup(
     name = 'zerodoc',
-    version = '0.2.2',
+    version = '0.2.3',
     description = "minimalistic {asciidoc/pod/phpdoc}-alike " +
                   "plaintext to html/markdown/whatever' format" +
                   "with a very simple interpreter and a very" +

@@ -19,7 +19,11 @@
 """
 import os
 import cgi
-import rsvg
+NORSVG=False
+try:
+    import rsvg
+except ImportError:
+    NORSVG=True
 import string
 import hashlib
 import tempfile
@@ -192,8 +196,10 @@ def get_diagram(options, lines):
         return None
     f = open(dfile, 'r')
     r = f.read()
-    if 'svg' in options and 'aafigure' == t:
+    if 'svg' in options and 'aafigure' == t and (NORSVG == True):
         # Set width on line four of the outputted svg
+        # If there is no rsvg on the system (github?) ther is no diagram
+        # support
         handle = rsvg.Handle(file=dfile)
         lines = r.split('\n')
         lines[4] += (' width="' + str(handle.props.width) +

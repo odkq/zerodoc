@@ -30,7 +30,6 @@ import zerodoc.utils
 import zerodoc.html     # For raw html pass-through
 # (http://docutils.sourceforge.net/docs/ref/rst/directives.html\
 #  raw-data-pass-through)
-import rsvg
 
 def write_listlines(proc, options, listlines, toc):
     lastlevel = 0
