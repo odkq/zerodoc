@@ -36,6 +36,7 @@ setup(
                 ("/usr/share/zerodoc/stylesheets",
                         [ "stylesheets/default.css"]),
     ],
+    install_requires = ['ply', 'pygments'],
     classifiers = classifiers
 )
 
