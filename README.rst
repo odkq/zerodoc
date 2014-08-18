@@ -2,7 +2,7 @@
 Zerodoc
 =======
 
-Version 0.2.0 Last updated 2014-08-17 pablo@odkq.com
+Version 0.2.3 Last updated 2014-08-17 pablo@odkq.com
 
 Zerodoc is a "plain text format" in the spirit of `asciidoc <http://www.methods.co.nz/asciidoc/>`_, `POD <http://search.cpan.org/dist/perl/pod/perlpod.pod>`_,
 `reStructuredText <http://docutils.sourceforge.net/rst.html>`_ or `markdown <http://daringfireball.net/projects/markdown/>`_, with an emphasis on simplicity and
