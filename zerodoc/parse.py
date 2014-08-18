@@ -306,10 +306,8 @@ def p_title(p):
     'title : textlines NEWLINE'
     # Copy directly the textlines as title is
     # prefixed by parent 'header', after removing any 'subtitle'
-    print 'title ' + str(p[1])
     para = p[1]
     if test_subtitle(para['textlines'][1]['string']):
-        print 'Found \'subtitle\' on title'
         para['textlines'] = para['textlines'][:-1]
     p[0] = para
 
@@ -365,7 +363,6 @@ def adjust_sections(doc):
         if len(para['textlines']) == 2:	  # A paragraph with 2 lines
             if test_subtitle(para['textlines'][1]['string']):
                 para['textlines'] = para['textlines'][:-1]
-		print 'Found subtitle for ' + str(para['textlines'][0])
             else:
                 continue
         elif len(para['textlines']) != 1:

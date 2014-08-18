@@ -65,7 +65,6 @@ def generate_diagram_aafigure(path, options):
         ext = 'png'
         outpath = path + '.png'
         r = ['aafigure', path, '-t', 'png', '-o', outpath]
-    print 'calling ' + string.join(r, ' ')
     p = subprocess.Popen(r, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     o = p.communicate()[0]
     return outpath, ext
@@ -83,7 +82,6 @@ def generate_diagram_a2s(path, options):
 
 def generate_diagram_tikz(path, options):
     ''' generate_diagram_tikz '''
-    print 'generate_diagram_tikz: {}'.format(path)
     texfile = path + '.tex'
     pdffile = path + '.pdf'
     psfile = path + '.eps'
